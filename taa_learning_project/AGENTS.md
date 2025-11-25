@@ -1,128 +1,131 @@
-下面我把你整个 TAA 学习项目的 **跨文件 import 规范** 和 **Outputs（数据/文件）建议** 完整整理出来，形成你在 Cursor 建项目时可以直接参照的统一标准。
+---
 
-内容已经完全基于 **TAA市场信号.md** PRD 逻辑整理（你之前已上传并引用）
-（文件路径：`/mnt/data/TAA市场信号.md`）。
+# **AGENTS.md（最终版）：TAA Learning Project Global Rules**
+
+本项目用于练习 Python + NumPy + pandas，通过实现 TAA（战术资产配置）计算链路来学习数据结构、向量化运算与工程化规范。
+以下所有规则为本仓库的全局约束，所有自动生成的文件都必须遵循。
 
 ---
 
-# ✅ 一、项目目录结构（推荐规范）
-
-适合你在 Cursor 用来学习 Python / numpy / pandas，且未来可扩展到真实数据。
+# **1｜项目目录结构（Project Structure）**
 
 ```
 taa_learning_project/
 │
-├── data/                     # （可选）本地缓存模拟数据或未来真实数据
+├── data/                       # (optional) 存放 mock 或未来真实数据
 │   ├── mock_returns.csv
 │   ├── mock_quadrants.csv
 │   └── mock_saa_weights.csv
 │
-├── core/                     # 最核心的数学/引擎逻辑
-│   ├── mock_data.py                # 生成 SAA、收益率、象限
-│   ├── taa_signal_engine.py        # Δw + β + Normalize + w_final
-│   ├── backtest_engine.py          # 回测指标
-│   ├── mc_simulation.py            # 蒙特卡罗
-│   └── utils.py                    # 通用工具：normalize, seed, helpers
+├── core/                       # 核心数学逻辑（核心模块）
+│   ├── mock_data.py            # 生成 SAA / 收益率 / 象限 → synthetic 数据
+│   ├── utils.py                # Normalize / seed / 通用工具
+│   ├── taa_signal_engine.py    # Δw + β + Normalize → w_final,t
+│   ├── backtest_engine.py      # 回测指标 + 判优
+│   └── mc_simulation.py        # 多期蒙特卡罗模拟（未来扩展）
 │
-├── scripts/                  # 单次可执行脚本（只 import core）
+├── scripts/                    # 可执行脚本，调用 core 模块
 │   ├── run_mock_data.py
 │   ├── run_taa_signal.py
 │   ├── run_backtest.py
 │   └── run_mc_simulation.py
 │
-└── README.md
+└── AGENTS.md                   # 全局项目规范（本文件）
 ```
 
-你当前练习阶段要重点建立：
+目标：
 
-* `mock_data.py`
-* `taa_signal_engine.py`
-* `backtest_engine.py`
-* `utils.py`
-
-Scripts 先不用，但未来很好用。
+* `core/` 只放数学与逻辑；
+* `scripts/` 执行单次任务；
+* `data/` 可选用于缓存。
 
 ---
 
-# ✅ 二、跨文件 import 关系（最重要的规范）
+# **2｜跨文件 import 关系（Import Dependency Rules）**
 
-这是你问的重点。下面给出最终版本标准。
+这一节是本项目**最关键的工程规范**：
+避免循环依赖、保证层次清晰、让 Cursor 自动生成的代码不会乱。
 
 ---
 
-## **1）mock_data.py**
+## **2.1 底层（无依赖层）**
 
-无外部依赖，只依赖：
+### **mock_data.py**
+
+只允许：
 
 ```python
 import numpy as np
 import pandas as pd
 ```
 
-**别 import core 中其他文件。
-mock_data 是最底层，无依赖。**
+不得 import core 中其他模块。
 
 ---
 
-## **2）utils.py**
+### **utils.py**
 
-（Normalize 或 seed 等通用工具）
+只允许：
 
 ```python
 import numpy as np
 ```
 
-也 **不 import 项目其他文件**。
+不得 import mock_data 或其他文件。
 
 ---
 
-## **3）taa_signal_engine.py**
+## **2.2 中层（核心逻辑层）**
 
-依赖：
+### **taa_signal_engine.py**
+
+允许：
 
 ```python
 import numpy as np
 import pandas as pd
-
 from core.utils import normalize_weights
 ```
 
-可选（不是必须）：
-
-```python
-from core.mock_data import generate_saa_weights, generate_quadrant_path
-```
-
-但建议 **不要 import mock_data**，因为那样 TAA 引擎会依赖 mock 层。
-而你会希望引擎未来可以接真实数据。
-
-**推荐写法：**
-`__main__` 里才 import mock_data，用于测试。
+不推荐 import mock_data（避免强耦合）。
+测试数据应在 `__main__` 中调用 mock_data 生成。
 
 ---
 
-## **4）backtest_engine.py**
+### **backtest_engine.py**
 
-依赖：
+允许：
 
 ```python
 import numpy as np
 import pandas as pd
-
 from core.utils import normalize_weights
 from core.taa_signal_engine import compute_final_weights_over_time
 ```
 
-同样不建议 import mock_data。测试区域再导入 mock。
+不允许 import mock_data（保持独立）。
 
 ---
 
-## **依赖关系图（最清晰版）**
+## **2.3 脚本层（最高层）**
+
+`scripts/*.py` 允许 import core 中所有模块，例如：
+
+```python
+from core.mock_data import create_mock_dataset
+from core.taa_signal_engine import compute_final_weights_over_time
+from core.backtest_engine import compare_saa_vs_taa
+```
+
+脚本层不得被 core 层 import。
+
+---
+
+## **2.4 整体依赖图（Dependency Graph）**
 
 ```
 mock_data.py         utils.py
       ↓                 ↓
-  (optional)        (normal)
       ↓                 ↓
    taa_signal_engine.py
             ↓
@@ -131,57 +134,52 @@ mock_data.py         utils.py
          scripts/*.py
 ```
 
----
-
-# ✅ 三、Outputs 是否需要补充？
-
-你的观察很正确：**之前 Prompt 没有明确规范每个文件的“输出数据格式”！**
-
-这会让 Cursor 难以保持 API 一致。
-
-因此我给出统一规范：
+**禁止反向 import**（下层永不 import 上层）。
 
 ---
 
-## 🔻 **统一 Outputs 规范**
+# **3｜统一 Outputs 规范（Output Interfaces）**
 
-### **1）mock_data 输出**
+为保证核心文件之间接口一致性，Cursor 生成代码时必须使用以下统一输出格式。
 
-所有生成函数统一如下结构：
+---
+
+## **3.1 mock_data 输出**
+
+函数：`create_mock_dataset()` 返回：
 
 ```python
-w_saa: np.ndarray           # shape (16,)
-returns_df: pd.DataFrame    # shape (T, 16)
-quadrants: pd.Series        # shape (T,)
+w_saa: np.ndarray        # shape (16,)
+returns_df: pd.DataFrame # shape (T, 16)
+quadrants: pd.Series     # shape (T,)
 ```
 
-可输出到 csv 时格式：
+CSV 统一格式（可选）：
 
 ```
-mock_returns.csv      # columns: strategy1...strategy16
-mock_quadrants.csv    # column: quadrant
-mock_saa_weights.csv  # column: weight
+mock_returns.csv      # 16 列，每列一个子策略
+mock_quadrants.csv    # 1 列：quadrant
+mock_saa_weights.csv  # 1 列：weight
 ```
 
 ---
 
-### **2）taa_signal_engine 输出**
+## **3.2 taa_signal_engine 输出**
 
-核心输出：
+核心函数：`compute_final_weights_over_time()` 返回：
 
 ```python
-weights_final: pd.DataFrame
-# shape: (T, 16)
-# 每行 normalize 后 sum=1
+final_weights_df: pd.DataFrame  # shape (T, 16)
+# 每行 sum=1，已经 Normalize
 ```
 
 列名必须与 `returns_df` 对齐。
 
 ---
 
-### **3）backtest_engine 输出**
+## **3.3 backtest_engine 输出**
 
-两个分层指标：
+定义以下数据类：
 
 ```python
 BacktestResult:
@@ -196,7 +194,7 @@ ComparisonResult:
     is_taa_better: bool
 ```
 
-统一返回格式：
+核心函数：`compare_saa_vs_taa()` 返回：
 
 ```python
 ComparisonResult
@@ -204,9 +202,9 @@ ComparisonResult
 
 ---
 
-### **4）Monte-Carlo（mc_simulation.py）输出**
+## **3.4 Monte-Carlo（mc_simulation）输出**
 
-标准统一为：
+数据类：
 
 ```python
 MCResult:
@@ -217,81 +215,54 @@ MCResult:
     all_paths: np.ndarray   # optional, shape (N_paths, T)
 ```
 
----
+核心函数返回：
 
-# ✅ 四、统一的单文件 Prompt 壳（含 import & outputs 标准）
-
-你以后只要丢这个模板给 Cursor，就可以可靠输出一份规范文件。
-
----
-
-## Template（你直接复制即可）
-
-````text
-You are a senior quantitative Python developer.
-I am building a TAA learning project based on the PRD in /mnt/data/TAA市场信号.md.
-
-For this step, generate ONE SINGLE python file following these rules:
-
-==================================================
-## 1. Project import hierarchy (VERY IMPORTANT)
-- mock_data.py: only numpy/pandas
-- utils.py: only numpy
-- taa_signal_engine.py:
-    from core.utils import normalize_weights
-- backtest_engine.py:
-    from core.utils import normalize_weights
-    from core.taa_signal_engine import compute_final_weights_over_time
-
-Never create circular imports.
-Never make core files depend on scripts.
-==================================================
-
-## 2. Output interface (MUST follow)
-
-### mock_data.py:
-- w_saa: np.ndarray (16,)
-- returns_df: pd.DataFrame (T,16)
-- quadrants: pd.Series (T,)
-
-### taa_signal_engine.py:
-- final_weights_df: pd.DataFrame (T,16)
-
-### backtest_engine.py:
-Return a ComparisonResult dataclass:
-- saa: BacktestResult
-- taa: BacktestResult
-- is_taa_better: bool
-
-### mc_simulation.py:
-Return MCResult dataclass:
-- median
-- p5
-- p95
-- worst_5pct
-- all_paths (optional)
-
-==================================================
-
-## 3. Coding constraints
-- Python 3.9 (must run on 3.11 locally too)
-- Only numpy + pandas
-- No scipy, no sklearn
-- Use docstrings + comments to teach the logic
-- Use synthetic data in __main__
-- File must be runnable alone: `python filename.py`
-
-==================================================
-
-## 4. Replace this section with module-specific goals
-[YOUR MODULE DESCRIPTION]
-
-==================================================
-
-## 5. Output rules
-- Return ONLY python code
-- No ``` fences
-- No extra text
-````
+```python
+MCResult
+```
 
 ---
+
+# **4｜全局编程规范（Coding Standards）**
+
+所有 core 与 scripts 文件必须遵循本节规则。
+
+---
+
+## **4.1 Python 版本与依赖**
+
+* **Python 3.9（兼容 3.11）**
+* 只允许：
+
+```
+numpy
+pandas
+```
+
+禁止：
+
+```
+scipy, sklearn, statsmodels, numba, pytorch, tf …
+```
+
+---
+
+## **4.2 风格（Cursor 容易遵守的规范）**
+
+* 函数必须带 docstring（用途、参数类型、返回类型）
+* 尽量使用 typed signatures (`np.ndarray`, `pd.DataFrame`)
+* 保持显式、清晰，不写炫技 one-liner
+* 每个核心模块都要实现 `if __name__ == "__main__":`（用于本地练习）
+
+---
+
+## **4.3 数据要求**
+
+测试数据必须使用：
+
+```python
+np.random.seed(42)
+```
+
+以确保结果可复现。
+
