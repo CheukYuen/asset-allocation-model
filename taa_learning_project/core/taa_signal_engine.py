@@ -2,11 +2,11 @@
 taa_signal_engine.py — TAA Weight-Adjustment Engine
 
 This module implements the Tactical Asset Allocation (TAA) weight-adjustment engine:
-    1. Maps 16 strategies to 5 higher-level asset classes
-    2. Applies macro-quadrant-based tilts to asset classes
-    3. Distributes tilts to strategies proportional to SAA weights
-    4. Applies strategy-specific sensitivity coefficients (beta)
-    5. Normalizes to produce final monthly weights
+    1. Maps 16 strategies to 5 higher-level asset classes （将 16 个子策略映射到 5 个高级资产类别）
+    2. Applies macro-quadrant-based tilts to asset classes （根据宏观象限对资产类别应用倾斜调整）
+    3. Distributes tilts to strategies proportional to SAA weights （按 SAA 权重比例将倾斜分配到各子策略）
+    4. Applies strategy-specific sensitivity coefficients (beta) （应用策略特定的敏感度系数（beta））
+    5. Normalizes to produce final monthly weights （归一化生成最终的月度权重）
 
 Purpose:
     - Learn vectorized operations with NumPy and pandas
@@ -33,6 +33,7 @@ from typing import Dict, List
 
 # =============================================================================
 # Constants: Strategy Names (16 strategies)
+# 常量：策略名称（16 个策略）
 # =============================================================================
 
 STRATEGY_NAMES: List[str] = [
@@ -56,6 +57,7 @@ STRATEGY_NAMES: List[str] = [
 
 # =============================================================================
 # Constants: Asset Classes (5 higher-level categories)
+# 常量：资产类别（5 个高级类别）
 # =============================================================================
 
 ASSET_CLASSES: List[str] = [
@@ -68,9 +70,11 @@ ASSET_CLASSES: List[str] = [
 
 # =============================================================================
 # Constants: Strategy-to-Asset-Class Mapping
+# 常量：策略到资产类别的映射
 # =============================================================================
 
 # Each of the 16 strategies maps to one of the 5 asset classes
+
 STRATEGY_TO_ASSET: Dict[str, str] = {
     "Cash": "Cash",
     "DepositFixedIncome": "Bond",
@@ -92,6 +96,7 @@ STRATEGY_TO_ASSET: Dict[str, str] = {
 
 # =============================================================================
 # Constants: Macro Quadrants (4 economic regimes)
+# 常量：宏观象限（4 个经济周期）
 # =============================================================================
 
 QUADRANTS: List[str] = [
