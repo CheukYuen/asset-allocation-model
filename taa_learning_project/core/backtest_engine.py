@@ -25,6 +25,31 @@ Dependencies:
     - Python 3.9+ (compatible with 3.11)
 
 Author: TAA Learning Project
+
+backtest_engine.py — TAA 绩效分析引擎
+
+本模块提供组合策略的回测与绩效分析功能。
+计算的核心指标包括:
+    - 组合月度收益 (权重 × 收益)
+    - 累计收益曲线
+    - 年化收益率 (几何)
+    - 年化波动率
+    - 夏普比率
+    - 最大回撤 (MDD)
+    - 卡玛比率
+    - 胜率
+
+配合模块:
+    - core/mock_data.py (数据生成)
+    - core/taa_signal_engine.py (TAA 权重计算)
+
+运行方式:
+    python core/backtest_engine.py
+
+依赖:
+    - numpy
+    - pandas
+    - Python 3.9+ (兼容 3.11)
 """
 
 # =============================================================================
@@ -79,6 +104,20 @@ def compute_portfolio_returns(
     -------
     >>> # If weights are [0.6, 0.4] and returns are [0.02, 0.05]
     >>> # Portfolio return = 0.6 * 0.02 + 0.4 * 0.05 = 0.032
+
+    计算组合的月度收益率(各策略收益的加权和)。
+
+    公式:
+        r_{p,t} = sum_i( w_{i,t} * r_{i,t} )
+
+    这是核心计算: 将各策略收益率与对应权重相乘后求和,得到每期的组合收益。
+
+    参数:
+        returns_df: 各策略月度收益率, 形状 (T, 16), T 为月数
+        weights_df: 各策略权重, 形状 (T, 16), 每行权重之和为 1
+
+    返回:
+        pd.Series: 每期的组合收益率
     """
     # Element-wise multiplication: (T, 16) * (T, 16) = (T, 16)
     # Each cell is w_{i,t} * r_{i,t}
@@ -133,6 +172,20 @@ def compute_cumulative_return(
     >>> # cumulative[0] = 1.01
     >>> # cumulative[1] = 1.01 * 1.02 = 1.0302
     >>> # cumulative[2] = 1.0302 * 0.99 = 1.019898
+
+    计算累计收益曲线(财富指数)。
+
+    公式:
+        C_0 = 1.0 (初始投资)
+        C_t = prod_{k=1..t}(1 + r_{p,k})
+
+    展示初始投入 1 元如何随时间增长。值为 1.5 表示组合盈利 50%。
+
+    参数:
+        portfolio_returns: 组合月度收益率序列
+
+    返回:
+        pd.Series: 累计收益曲线, 从 (1 + 首月收益) 开始复利累积
     """
     # Add 1 to each return to get growth factors
     # e.g., 0.02 return becomes 1.02 growth factor
@@ -179,6 +232,20 @@ def annualized_return(
     -------
     >>> # If total return over 24 months is 20%:
     >>> # Annualized = (1.20)^(12/24) - 1 = 1.0954 - 1 = 9.54%
+
+    使用几何复利计算年化收益率。
+
+    公式:
+        R_total = cumulative_return[-1] - 1
+        年化收益 = (1 + R_total)^(12/T) - 1
+
+    将 T 个月的总收益转换为等效年化收益率(考虑复利)。
+
+    参数:
+        portfolio_returns: 组合月度收益率序列
+
+    返回:
+        float: 年化收益率(小数形式, 如 0.08 表示 8%)
     """
     # Number of periods (months)
     T = len(portfolio_returns)
@@ -230,6 +297,19 @@ def annualized_volatility(
     -------
     >>> # If monthly std = 0.03 (3%):
     >>> # Annual vol = 0.03 * sqrt(12) = 0.03 * 3.464 = 10.39%
+
+    计算年化波动率(标准差)。
+
+    公式:
+        年化波动率 = std(月度收益) * sqrt(12)
+
+    波动率按时间的平方根缩放。月度波动率乘以 sqrt(12) 得到年化波动率。
+
+    参数:
+        portfolio_returns: 组合月度收益率序列
+
+    返回:
+        float: 年化波动率(小数形式, 如 0.15 表示 15%)
     """
     # Calculate monthly standard deviation
     # ddof=1 uses sample standard deviation (N-1 denominator)
@@ -274,6 +354,20 @@ def sharpe_ratio(
     -------
     >>> # If annualized return = 10%, vol = 15%, rf = 2%:
     >>> # Sharpe = (0.10 - 0.02) / 0.15 = 0.533
+
+    计算夏普比率(风险调整后收益)。
+
+    公式:
+        Sharpe = (年化收益 - 无风险利率) / 年化波动率
+
+    夏普比率衡量每单位风险的超额收益。越高越好, 一般认为 Sharpe > 1 较好。
+
+    参数:
+        portfolio_returns: 组合月度收益率序列
+        risk_free_rate: 年化无风险利率(小数形式), 默认 0.0
+
+    返回:
+        float: 夏普比率, 若波动率为 0 则返回 np.nan
     """
     ann_ret = annualized_return(portfolio_returns)
     ann_vol = annualized_volatility(portfolio_returns)
@@ -322,6 +416,22 @@ def max_drawdown(
     >>> # If wealth goes: 1.0 -> 1.2 -> 0.9 -> 1.1
     >>> # Peak at 1.2, trough at 0.9
     >>> # MDD = (0.9 / 1.2) - 1 = -0.25 = -25%
+
+    计算最大回撤(MDD)。
+
+    公式:
+        滚动峰值 = cummax(C_t)
+        回撤_t = (C_t / 滚动峰值) - 1
+        MDD = min(回撤_t)
+
+    最大回撤衡量从历史高点到谷底的最大跌幅。
+    回答: "从历史高点算起, 最糟糕的亏损是多少?"
+
+    参数:
+        cumulative_returns: 累计收益曲线(财富指数), 起始值应 > 0
+
+    返回:
+        float: 最大回撤(负数, 如 -0.23 表示 -23% 回撤)
     """
     # Calculate running maximum (peak) at each point
     # cummax() returns the cumulative maximum seen so far
@@ -371,6 +481,20 @@ def calmar_ratio(
     -------
     >>> # If annualized return = 12%, MDD = -20%:
     >>> # Calmar = 0.12 / 0.20 = 0.60
+
+    计算卡玛比率(收益与回撤风险之比)。
+
+    公式:
+        Calmar = 年化收益 / |MDD|
+
+    卡玛比率衡量每单位回撤风险的收益。越高越好, 惩罚大回撤策略。
+
+    参数:
+        portfolio_returns: 组合月度收益率序列
+        cumulative_returns: 累计收益曲线
+
+    返回:
+        float: 卡玛比率, 若 MDD 为 0 或正数则返回 np.nan
     """
     ann_ret = annualized_return(portfolio_returns)
     mdd = max_drawdown(cumulative_returns)
@@ -418,6 +542,19 @@ def win_rate(
     -------
     >>> # If 7 out of 12 months are positive:
     >>> # Win rate = 7/12 = 0.583 = 58.3%
+
+    计算胜率(正收益月份占比)。
+
+    公式:
+        胜率 = (收益 > 0 的月数) / T
+
+    展示组合盈利的频率。胜率 > 50% 通常较好, 但也取决于盈亏的幅度。
+
+    参数:
+        portfolio_returns: 组合月度收益率序列
+
+    返回:
+        float: 胜率(小数形式, 如 0.60 表示 60% 的月份盈利)
     """
     T = len(portfolio_returns)
 
@@ -476,6 +613,28 @@ def aggregate_backtest_metrics(
     >>> metrics = aggregate_backtest_metrics(returns_df, weights_df)
     >>> print(f"Sharpe: {metrics['sharpe_ratio']:.2f}")
     >>> print(f"MDD: {metrics['max_drawdown']:.2%}")
+
+    高层封装函数, 计算所有回测指标。
+
+    执行完整的回测流程:
+        1. 计算组合月度收益
+        2. 计算累计收益曲线
+        3. 计算所有绩效指标
+
+    参数:
+        returns_df: 各策略月度收益率, 形状 (T, 16)
+        weights_df: 组合权重, 形状 (T, 16)
+
+    返回:
+        Dict[str, Any]: 包含以下内容的字典:
+        - "portfolio_returns": 月度收益序列
+        - "cumulative_returns": 累计收益序列
+        - "annualized_return": 年化收益率
+        - "annualized_volatility": 年化波动率
+        - "sharpe_ratio": 夏普比率
+        - "max_drawdown": 最大回撤(负数)
+        - "calmar_ratio": 卡玛比率
+        - "win_rate": 胜率
     """
     # Step 1: Compute portfolio returns
     portfolio_returns = compute_portfolio_returns(returns_df, weights_df)
