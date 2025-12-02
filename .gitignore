@@ -37,11 +37,6 @@ wheels/
 .env
 .env.local
 
-# 数据文件
-data/
-*.csv
-*.xlsx
-!example_data.csv
 
 # 输出结果
 output/
