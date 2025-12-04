@@ -1,0 +1,29 @@
+{
+    "client_id": "Client_004",
+    "profile_name": "家族办公室 (机构级多目标管理)",
+    "demographics": {
+      "age": 0,
+      "status": "家族办公室"
+    },
+    "investment_objectives": [
+      "多元化目标：长期增长、保值避险、社会责任投资(ESG)"
+    ],
+    "risk_tolerance": {
+      "risk_profile": "稳健偏平衡",
+      "max_acceptable_drawdown": "12%"
+    },
+    "investment_horizon": "长期",
+    "liquidity_needs": "中等",
+    "capital_size": {
+      "initial_investment": "数亿元人民币",
+      "future_contributions": "有"
+    },
+    "existing_portfolio": {
+      "asset_allocation": [
+        { "asset_class": "另类投资", "percentage": 55 },
+        { "asset_class": "权益类资产", "percentage": 30 },
+        { "asset_class": "固定收益类资产", "percentage": 10 },
+        { "asset_class": "现金及现金等价物", "percentage": 5 }
+      ]
+    }
+  }

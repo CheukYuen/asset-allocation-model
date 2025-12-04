@@ -1,0 +1,31 @@
+{
+  "client_id": "Client_002",
+  "profile_name": "企业主财富传承 (平衡型长期投资者)",
+  "demographics": {
+    "age": 45,
+    "status": "企业主"
+  },
+  "investment_objectives": [
+    "长期资本增值",
+    "跑赢通胀",
+    "为子女未来教育/婚嫁提供资金"
+  ],
+  "risk_tolerance": {
+    "risk_profile": "平衡型",
+    "max_acceptable_drawdown": "15%"
+  },
+  "investment_horizon": "长期 (>10年)",
+  "liquidity_needs": "低",
+  "capital_size": {
+    "initial_investment": "5000万元人民币",
+    "future_contributions": "有"
+  },
+  "existing_portfolio": {
+    "asset_allocation": [
+      { "asset_class": "另类投资", "percentage": 60 },
+      { "asset_class": "权益类资产", "percentage": 20 },
+      { "asset_class": "另类投资", "percentage": 15 },
+      { "asset_class": "现金及现金等价物", "percentage": 5 }
+    ]
+  }
+}

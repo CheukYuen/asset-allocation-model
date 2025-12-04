@@ -1,0 +1,28 @@
+{
+    "client_id": "Client_001",
+    "profile_name": "稳健退休人士 (保守型防御者)",
+    "demographics": {
+      "age": 68,
+      "status": "已退休"
+    },
+    "investment_objectives": [
+      "保本为主",
+      "获取稳定现金流以补充养老金"
+    ],
+    "risk_tolerance": {
+      "risk_profile": "保守型",
+      "max_acceptable_drawdown": "5%"
+    },
+    "investment_horizon": "中期 (1-3年)",
+    "liquidity_needs": "高",
+    "capital_size": {
+      "initial_investment": "约300万元人民币",
+      "future_contributions": "无"
+    },
+    "existing_portfolio": {
+      "asset_allocation": [
+        { "asset_class": "固定收益类资产", "percentage": 30 },
+        { "asset_class": "现金及现金等价物", "percentage": 70 }
+      ]
+    }
+  }

@@ -1,0 +1,27 @@
+{
+    "client_id": "Client_003",
+    "profile_name": "年轻专业人士 (进取型成长者)",
+    "demographics": {
+      "age": 30,
+      "status": "互联网公司高级工程师"
+    },
+    "investment_objectives": [
+      "追求高长期资本增值",
+      "实现财务自由"
+    ],
+    "risk_tolerance": {
+      "risk_profile": "进取型",
+      "max_acceptable_drawdown": "30%"
+    },
+    "investment_horizon": "长期 (>15年)",
+    "liquidity_needs": "低",
+    "capital_size": {
+      "initial_investment": "50万元",
+      "future_contributions": "每月有可观追加"
+    },
+    "existing_portfolio": {
+      "asset_allocation": [
+        { "asset_class": "权益类资产", "percentage": 100 }
+      ]
+    }
+  }
