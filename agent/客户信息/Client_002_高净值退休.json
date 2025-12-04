@@ -24,7 +24,7 @@
     "asset_allocation": [
       { "asset_class": "另类投资", "percentage": 60 },
       { "asset_class": "权益类资产", "percentage": 20 },
-      { "asset_class": "另类投资", "percentage": 15 },
+      { "asset_class": "固定收益类资产", "percentage": 15 },
       { "asset_class": "现金及现金等价物", "percentage": 5 }
     ]
   }
