@@ -1,0 +1,5 @@
+product_name,code,asset_class,sub_category,underlying_or_strategy,scale_billion,daily_volume_billion,expense_ratio,performance_1y,volatility_1y,max_drawdown_3y,sharpe_ratio,risk_level,remarks
+"沪深300ETF",510300,股票,宽基指数,跟踪沪深300指数,450,20.5,0.15%,12.5%,14.2%,-23.1%,0.68,R3,"流动性极佳"
+"中证500ETF",510500,股票,宽基指数,跟踪中证500指数,280,12.3,0.20%,15.8%,18.7%,-29.4%,0.72,R3,"中盘成长风格"
+...
+"余额宝",000198,现金,货币基金,投资于高信用等级短期债券,8000,NA,0.10%,1.75%,0.1%,-0.01%,2.10,R1,"支持实时申赎"
