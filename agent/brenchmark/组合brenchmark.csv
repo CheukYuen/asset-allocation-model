@@ -1,0 +1,6 @@
+risk_level,final_nav_3y,cumulative_return_3y,annualized_return,annualized_volatility,max_drawdown
+C1,1.078,0.078,0.025,0.018,-0.020
+C2,1.123,0.123,0.039,0.032,-0.035
+C3,1.171,0.171,0.054,0.050,-0.060
+C4,1.238,0.238,0.073,0.082,-0.095
+C5,1.332,0.332,0.100,0.128,-0.150
