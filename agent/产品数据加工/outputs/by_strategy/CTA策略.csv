@@ -1,0 +1,5 @@
+﻿product_name,product_code,currency,asset_class,sub_category,risk_level,metric_return,metric_volatility,metric_drawdown,metric_sharpe,z_return,z_sharpe,z_vol,z_dd,score,family
+幻方CTA,880003,CNY,另类,CTA策略,R4,11.62,13.68,19.57,0.65,0.29509,-0.109411,-0.286557,-0.693841,0.231558,D
+九坤CTA优选,880000,CNY,另类,CTA策略,R4,3.0,13.64,21.7,0.83,-1.958799,1.14384,-0.320993,0.317417,-0.088641,D
+明汯CTA精选,880001,CNY,另类,CTA策略,R3,12.18,14.37,22.82,0.67,0.441514,0.029839,0.307464,0.849158,-0.110502,D
+明汯CTA精选B,880005,CNY,另类,CTA策略,R4,7.65,13.0,22.03,0.66,-0.742954,-0.039786,-0.871969,0.474091,-0.120088,D

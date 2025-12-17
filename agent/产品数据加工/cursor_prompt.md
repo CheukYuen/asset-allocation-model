@@ -68,18 +68,12 @@ strategy_size_before, strategy_size_after（可按 sub_category groupby 统计�
 - outputs/by_strategy/*.csv
 - outputs/all_strategies_pool.csv
 
+
+
 【风格要求】
 - 不要写占位符；必须给出完整可运行代码。
 - pandas 计算 z-score 时要考虑 std=0 的情况（返回 0 避免 NaN）。
 - 处理缺失值：核心指标缺失太多的行（四项中缺两项以上）直接剔除；缺一项按兜底口径补齐。
-
-【重要数据口径约定（必须遵守）】
-raw_products.csv 中，收益 / 波动 / 回撤字段的数值可能以“百分数制”存储（例如 9.25 表示 9.25%）。
-在进入任何计算（z-score、分位数、评分、过滤）之前，必须统一将这些字段转换为“小数制”（9.25 → 0.0925）。
-请在代码中实现一个通用的 normalize_percent_series 函数：
-- 若某列 median(|x|) > 1.5，则整体除以 100；
-- 否则保持不变。
-夏普比率（sharpe_ratio_*）不参与该转换。
 
 
 请直接输出：

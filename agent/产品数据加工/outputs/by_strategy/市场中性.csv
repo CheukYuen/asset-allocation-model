@@ -1,0 +1,4 @@
+﻿product_name,product_code,currency,asset_class,sub_category,risk_level,metric_return,metric_volatility,metric_drawdown,metric_sharpe,z_return,z_sharpe,z_vol,z_dd,score,family
+明汯中性优选,890002,CNY,另类,市场中性,R3,8.94,13.08,15.07,0.75,0.128063,0.300676,0.646947,-0.578791,0.123621,D
+九坤对冲精选,890001,CNY,另类,市场中性,R3,7.37,13.14,20.26,0.72,-0.415341,0.042954,0.679339,0.437193,-0.312108,D
+九坤对冲精选B,890004,CNY,另类,市场中性,R3,4.2,12.64,18.89,0.64,-1.512533,-0.644305,0.409403,0.169004,-0.719322,D
