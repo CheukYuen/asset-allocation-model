@@ -105,6 +105,28 @@ FILTER_CONFIG = {
 # 最大允许缺失的核心指标数量（超过则剔除）
 MAX_MISSING_METRICS = 1
 
+# raw_products.csv 原始列顺序
+RAW_OUTPUT_COLS = [
+    "product_name",
+    "product_code", 
+    "currency",
+    "asset_class",
+    "sub_category",
+    "risk_level",
+    "return_1y",
+    "return_3y",
+    "return_5y",
+    "volatility_1y",
+    "volatility_3y",
+    "volatility_5y",
+    "max_drawdown_1y",
+    "max_drawdown_2y",
+    "max_drawdown_3y",
+    "sharpe_ratio_1y",
+    "sharpe_ratio_3y",
+    "sharpe_ratio_5y",
+]
+
 # =============================================================================
 # 日志配置
 # =============================================================================
@@ -526,6 +548,21 @@ def prepare_output_columns(df: pd.DataFrame) -> pd.DataFrame:
     return result
 
 
+def prepare_raw_output_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    准备原始格式输出列，列顺序和值与 raw_products.csv 一致。
+    
+    Args:
+        df: 完整数据框
+        
+    Returns:
+        只包含原始列的数据框
+    """
+    # 保留存在的原始列
+    existing_cols = [col for col in RAW_OUTPUT_COLS if col in df.columns]
+    return df[existing_cols].copy()
+
+
 def save_outputs(
     df: pd.DataFrame,
     size_stats: Dict[str, Tuple[int, int]]
@@ -533,50 +570,68 @@ def save_outputs(
     """
     保存输出文件。
     
+    为每个输出生成两份 CSV：
+    1. 带评分的版本（含 metric_*, z_*, score, family）
+    2. 原始格式版本（列顺序和值与 raw_products.csv 一致）
+    
     Args:
         df: 过滤后的数据框
         size_stats: 各策略过滤前后数量
     """
     # 创建输出目录
     os.makedirs(OUTPUT_BY_STRATEGY_DIR, exist_ok=True)
+    output_raw_dir = os.path.join(OUTPUT_BY_STRATEGY_DIR, "raw")
+    os.makedirs(output_raw_dir, exist_ok=True)
     logger.info(f"创建输出目录: {OUTPUT_BY_STRATEGY_DIR}")
+    logger.info(f"创建原始格式输出目录: {output_raw_dir}")
     
     # 1. 按策略分别保存
     strategies = df[STRATEGY_COL].unique()
     
     for strategy in strategies:
         strategy_df = df[df[STRATEGY_COL] == strategy].copy()
-        strategy_df = prepare_output_columns(strategy_df)
         
-        # 按 score 降序排列
+        # 按 score 降序排列（先排序，保持两份输出顺序一致）
         strategy_df = strategy_df.sort_values("score", ascending=False)
         
         # 安全的文件名
         safe_name = strategy.replace("/", "_").replace("\\", "_")
-        output_path = os.path.join(OUTPUT_BY_STRATEGY_DIR, f"{safe_name}.csv")
         
-        strategy_df.to_csv(output_path, index=False, encoding="utf-8-sig")
-        logger.info(f"保存策略文件: {output_path} ({len(strategy_df)} 行)")
+        # 1a. 保存带评分的版本
+        scored_df = prepare_output_columns(strategy_df)
+        output_path = os.path.join(OUTPUT_BY_STRATEGY_DIR, f"{safe_name}.csv")
+        scored_df.to_csv(output_path, index=False, encoding="utf-8-sig")
+        logger.info(f"保存策略文件: {output_path} ({len(scored_df)} 行)")
+        
+        # 1b. 保存原始格式版本
+        raw_df = prepare_raw_output_columns(strategy_df)
+        raw_output_path = os.path.join(output_raw_dir, f"{safe_name}.csv")
+        raw_df.to_csv(raw_output_path, index=False, encoding="utf-8-sig")
+        logger.info(f"保存原始格式: {raw_output_path} ({len(raw_df)} 行)")
     
     # 2. 保存全策略合并文件
-    all_df = prepare_output_columns(df)
+    # 按策略分组，再按 score 降序（先排序）
+    df_sorted = df.sort_values(
+        [STRATEGY_COL, "score"],
+        ascending=[True, False]
+    )
     
-    # 添加策略规模统计
+    # 2a. 带评分的版本
+    all_df = prepare_output_columns(df_sorted)
     all_df["strategy_size_before"] = all_df[STRATEGY_COL].map(
         lambda x: size_stats.get(x, (0, 0))[0]
     )
     all_df["strategy_size_after"] = all_df[STRATEGY_COL].map(
         lambda x: size_stats.get(x, (0, 0))[1]
     )
-    
-    # 按策略分组，再按 score 降序
-    all_df = all_df.sort_values(
-        [STRATEGY_COL, "score"],
-        ascending=[True, False]
-    )
-    
     all_df.to_csv(OUTPUT_ALL_CSV, index=False, encoding="utf-8-sig")
     logger.info(f"保存合并文件: {OUTPUT_ALL_CSV} ({len(all_df)} 行)")
+    
+    # 2b. 原始格式版本
+    all_raw_df = prepare_raw_output_columns(df_sorted)
+    raw_all_csv = OUTPUT_ALL_CSV.replace(".csv", "_raw.csv")
+    all_raw_df.to_csv(raw_all_csv, index=False, encoding="utf-8-sig")
+    logger.info(f"保存原始格式合并文件: {raw_all_csv} ({len(all_raw_df)} 行)")
 
 
 # =============================================================================

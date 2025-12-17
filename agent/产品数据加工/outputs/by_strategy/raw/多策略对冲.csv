@@ -1,0 +1,4 @@
+﻿product_name,product_code,currency,asset_class,sub_category,risk_level,return_1y,return_3y,return_5y,volatility_1y,volatility_3y,volatility_5y,max_drawdown_1y,max_drawdown_2y,max_drawdown_3y,sharpe_ratio_1y,sharpe_ratio_3y,sharpe_ratio_5y
+淡水泉多策略,900002,CNY,另类,多策略对冲,R3,20.0,4.91,7.93,10.68,13.67,,-14.9,-22.53,-19.45,1.25,,0.7
+景林对冲精选,900001,CNY,另类,多策略对冲,R3,9.39,8.46,10.59,6.0,16.72,8.3,-16.33,-21.36,-18.82,0.4,0.83,
+景林对冲精选B,900004,CNY,另类,多策略对冲,R4,8.88,9.8,6.52,12.77,18.0,10.94,-16.79,-22.56,-17.85,,0.72,0.64

@@ -1,0 +1,4 @@
+﻿product_name,product_code,currency,asset_class,sub_category,risk_level,return_1y,return_3y,return_5y,volatility_1y,volatility_3y,volatility_5y,max_drawdown_1y,max_drawdown_2y,max_drawdown_3y,sharpe_ratio_1y,sharpe_ratio_3y,sharpe_ratio_5y
+明汯中性优选,890002,CNY,另类,市场中性,R3,14.53,8.94,6.91,13.08,14.0,8.84,-9.43,-15.07,-18.01,0.91,0.75,0.82
+九坤对冲精选,890001,CNY,另类,市场中性,R3,13.71,7.37,7.13,13.14,9.74,13.17,-17.57,-20.26,-28.71,0.3,0.72,1.0
+九坤对冲精选B,890004,CNY,另类,市场中性,R3,17.7,4.2,5.64,12.64,7.98,11.1,-6.69,-18.89,-21.06,0.48,0.64,0.67
