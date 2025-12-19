@@ -281,27 +281,47 @@ def bucket_selection(df: pd.DataFrame) -> pd.DataFrame:
 def ensure_strategy_coverage(
     selected_df: pd.DataFrame,
     full_pool: pd.DataFrame,
-    all_strategies: List[str]
+    all_strategies: List[str],
+    num_buckets: int = 5
 ) -> pd.DataFrame:
     """
-    C3: 确保16种一级策略都有代表
-    如果某策略在选中集合中缺失，从完整池中按 return_3y 排名补充
+    C3: 确保16种一级策略在每个桶中都有代表
     """
     result = selected_df.copy()
-    covered_strategies = set(result['sub_category'].unique())
-    missing_strategies = set(all_strategies) - covered_strategies
+    all_strategies_set = set(all_strategies)
     
-    for strategy in missing_strategies:
-        # 从完整池中找该策略的产品，按 return_3y 排序取第一个
-        strategy_products = full_pool[full_pool['sub_category'] == strategy]
-        if len(strategy_products) > 0:
-            best_product = strategy_products.sort_values('return_3y', ascending=False).iloc[0:1]
-            # 分配到产品数最少的桶
-            bucket_counts = result['bucket_id'].value_counts()
-            min_bucket = bucket_counts.idxmin()
-            best_product = best_product.copy()
-            best_product['bucket_id'] = min_bucket
-            result = pd.concat([result, best_product], ignore_index=True)
+    # 1. 预计算：每个策略的 return_3y 最优产品
+    best_by_strategy = {
+        s: full_pool[full_pool['sub_category'] == s].nlargest(1, 'return_3y')
+        for s in all_strategies
+        if len(full_pool[full_pool['sub_category'] == s]) > 0
+    }
+    
+    # 2. 逐桶补充缺失策略（收集待添加行，最后批量合并）
+    rows_to_add = []
+    
+    for bucket_id in range(1, num_buckets + 1):
+        bucket_mask = result['bucket_id'] == bucket_id
+        existing_strategies = set(result.loc[bucket_mask, 'sub_category'])
+        existing_products = set(result.loc[bucket_mask, 'product_code'])
+        missing = all_strategies_set - existing_strategies
+        
+        for strategy in missing:
+            if strategy not in best_by_strategy:
+                continue
+            
+            best = best_by_strategy[strategy]
+            code = best.iloc[0]['product_code']
+            
+            if code not in existing_products:
+                row = best.copy()
+                row['bucket_id'] = bucket_id
+                rows_to_add.append(row)
+                existing_products.add(code)
+    
+    # 3. 批量合并（单次 concat，性能更优）
+    if rows_to_add:
+        result = pd.concat([result] + rows_to_add, ignore_index=True)
     
     return result
 ```
