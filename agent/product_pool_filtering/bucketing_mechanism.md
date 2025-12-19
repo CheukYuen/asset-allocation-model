@@ -38,7 +38,20 @@
 * 该集合在 Stage B 的后续步骤中 **会被强制注入到每个桶中**
 
 > 说明：
-> Stage A 不做任何风控或多样性约束，目的**不是公平，而是识别“最强信号”**。
+> Stage A 不做任何风控或多样性约束，目的**不是公平，而是识别"最强信号"**。
+
+#### 🔧 代码实现
+
+```python
+def identify_top_alpha(df: pd.DataFrame, top_n: int = 10) -> pd.DataFrame:
+    """
+    识别收益率 Top N 的产品
+    按 return_1y 降序排列，取前 N 个
+    """
+    sorted_df = df.sort_values('return_1y', ascending=False)
+    top_alpha = sorted_df.head(top_n).copy()
+    return top_alpha
+```
 
 ---
 
@@ -73,6 +86,32 @@ $$
 >
 > * 对 **收益率 / 夏普比率**：分位数越高 → 表现越好
 > * 对 **波动率**：分位数越高 → 波动越大、风险越高（表现越差）
+
+#### 🔧 代码实现
+
+```python
+def calculate_percentiles(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    按一级策略（sub_category）分组计算分位数
+    使用 pandas rank(pct=True) 实现 P(x) = rank(x) / N
+    """
+    result = df.copy()
+    
+    # 按策略分组计算分位数
+    result['pct_return_3y'] = df.groupby('sub_category')['return_3y'].transform(
+        lambda x: x.rank(pct=True, method='average')
+    )
+    
+    result['pct_sharpe_3y'] = df.groupby('sub_category')['sharpe_ratio_3y'].transform(
+        lambda x: x.rank(pct=True, method='average')
+    )
+    
+    result['pct_volatility_3y'] = df.groupby('sub_category')['volatility_3y'].transform(
+        lambda x: x.rank(pct=True, method='average')
+    )
+    
+    return result
+```
 
 ---
 
@@ -110,6 +149,33 @@ $$
   * 对“**低风险但收益一般**”产品的保留（防守型底仓）
 * 分位数版本天然鲁棒，对极端值不敏感，适合用于稳定的规则化筛选
 
+#### 🔧 代码实现
+
+```python
+# 阈值常量
+FILTER_BOTTOM_PERCENTILE = 0.10  # 最差 10%
+FILTER_TOP_VOL_PERCENTILE = 0.90  # 波动率最高 10%
+FILTER_RETURN_MEDIAN = 0.50      # 收益中位数
+
+def apply_filter_rules(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    应用剔除规则（联合 OR 逻辑）
+    """
+    # 剔除条件
+    cond1 = df['pct_return_3y'] <= FILTER_BOTTOM_PERCENTILE
+    cond2 = df['pct_sharpe_3y'] <= FILTER_BOTTOM_PERCENTILE
+    cond3 = (df['pct_volatility_3y'] >= FILTER_TOP_VOL_PERCENTILE) & \
+            (df['pct_return_3y'] < FILTER_RETURN_MEDIAN)
+    
+    # 满足任一条件则剔除
+    exclude_mask = cond1 | cond2 | cond3
+    
+    filtered_pool = df[~exclude_mask].copy()
+    excluded_df = df[exclude_mask].copy()
+    
+    return filtered_pool, excluded_df
+```
+
 ---
 
 ### 📦 产出
@@ -136,6 +202,24 @@ $$
 * Bucket 4：4, 9, 14, 19, …
 * Bucket 5：5, 10, 15, 20, …
 
+#### 🔧 代码实现
+
+```python
+def assign_buckets(df: pd.DataFrame, num_buckets: int = 5) -> pd.DataFrame:
+    """
+    C1: 按 return_1y 降序排序，轮询分配到各桶
+    """
+    result = df.sort_values('return_1y', ascending=False).copy()
+    result = result.reset_index(drop=True)
+    
+    # 轮询分配 bucket_id (1-5)
+    # index: 0,1,2,3,4,5,6,7...
+    # bucket: 1,2,3,4,5,1,2,3...
+    result['bucket_id'] = (result.index % num_buckets) + 1
+    
+    return result
+```
+
 ---
 
 ### C2. 桶内多维优选（分位数 + OR）
@@ -145,6 +229,40 @@ $$
 * **收益率处于桶内 Top 20% 分位（return_3y）**
 * **夏普比率处于桶内 Top 20% 分位（sharpe_ratio_3y）**
 * **波动率处于桶内最优 Top 20% 分位（低波动，volatility_3y）**
+
+#### 🔧 代码实现
+
+```python
+BUCKET_TOP_PERCENTILE = 0.80  # Top 20% (即分位数 >= 0.80)
+
+def bucket_selection(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    C2: 桶内多维优选
+    保留满足任一条件的产品（OR 逻辑）
+    """
+    result = df.copy()
+    
+    # 计算桶内分位数
+    result['bucket_pct_return'] = df.groupby('bucket_id')['return_3y'].transform(
+        lambda x: x.rank(pct=True, method='average')
+    )
+    result['bucket_pct_sharpe'] = df.groupby('bucket_id')['sharpe_ratio_3y'].transform(
+        lambda x: x.rank(pct=True, method='average')
+    )
+    result['bucket_pct_volatility'] = df.groupby('bucket_id')['volatility_3y'].transform(
+        lambda x: x.rank(pct=True, method='average')
+    )
+    
+    # 保留条件（OR 逻辑）
+    keep_return = result['bucket_pct_return'] >= BUCKET_TOP_PERCENTILE      # 收益 Top 20%
+    keep_sharpe = result['bucket_pct_sharpe'] >= BUCKET_TOP_PERCENTILE      # 夏普 Top 20%
+    keep_low_vol = result['bucket_pct_volatility'] <= 0.20                  # 波动率最低 20%
+    
+    keep_mask = keep_return | keep_sharpe | keep_low_vol
+    selected = result[keep_mask].copy()
+    
+    return selected
+```
 
 ---
 
@@ -157,12 +275,74 @@ $$
 
   * 从该策略中按 **return_3y 排序的名次 rank（从 1 开始）** 产品补充进入对应桶
 
+#### 🔧 代码实现
+
+```python
+def ensure_strategy_coverage(
+    selected_df: pd.DataFrame,
+    full_pool: pd.DataFrame,
+    all_strategies: List[str]
+) -> pd.DataFrame:
+    """
+    C3: 确保16种一级策略都有代表
+    如果某策略在选中集合中缺失，从完整池中按 return_3y 排名补充
+    """
+    result = selected_df.copy()
+    covered_strategies = set(result['sub_category'].unique())
+    missing_strategies = set(all_strategies) - covered_strategies
+    
+    for strategy in missing_strategies:
+        # 从完整池中找该策略的产品，按 return_3y 排序取第一个
+        strategy_products = full_pool[full_pool['sub_category'] == strategy]
+        if len(strategy_products) > 0:
+            best_product = strategy_products.sort_values('return_3y', ascending=False).iloc[0:1]
+            # 分配到产品数最少的桶
+            bucket_counts = result['bucket_id'].value_counts()
+            min_bucket = bucket_counts.idxmin()
+            best_product = best_product.copy()
+            best_product['bucket_id'] = min_bucket
+            result = pd.concat([result, best_product], ignore_index=True)
+    
+    return result
+```
+
 ---
 
 ### C4. 强 Alpha 再注入（去重）
 
 * 将 `Top_Return_Set` 中的产品加入 **每一个桶**
 * 若产品已存在于桶中，则跳过，不重复添加
+
+#### 🔧 代码实现
+
+```python
+def inject_top_alpha(
+    buckets_df: pd.DataFrame,
+    top_alpha_df: pd.DataFrame,
+    num_buckets: int = 5
+) -> pd.DataFrame:
+    """
+    C4: 将强 Alpha 产品注入每个桶（去重）
+    """
+    result = buckets_df.copy()
+    
+    # 标记已存在的 Top Alpha
+    result['is_top_alpha'] = result['product_code'].isin(top_alpha_df['product_code'])
+    
+    for bucket_id in range(1, num_buckets + 1):
+        bucket_products = set(result[result['bucket_id'] == bucket_id]['product_code'])
+        
+        for _, alpha_row in top_alpha_df.iterrows():
+            if alpha_row['product_code'] not in bucket_products:
+                # 添加到该桶
+                new_row = alpha_row.copy()
+                new_row['bucket_id'] = bucket_id
+                new_row['is_top_alpha'] = True
+                result = pd.concat([result, pd.DataFrame([new_row])], ignore_index=True)
+                bucket_products.add(alpha_row['product_code'])
+    
+    return result
+```
 
 ---
 
@@ -184,7 +364,116 @@ $$
 
 ---
 
-如果你愿意，下一步我可以帮你做三件事之一：
-1️⃣ 把这套规则 **压缩成一段 LLM 可直接执行的 Prompt**
-2️⃣ 输出 **工程实现伪代码 / Pipeline 结构**
-3️⃣ 帮你评估：**这套规则是否会“过度中庸”或“削弱 Satellite Alpha”**
+## 五、完整流程代码
+
+```python
+def run_bucket_filter(input_file: str, output_dir: str) -> Dict[str, pd.DataFrame]:
+    """
+    执行完整的分桶流程
+    """
+    # 1. 加载与清洗数据（剔除关键指标缺失的产品）
+    cleaned_df, removed_df = load_and_clean_data(input_file)
+    
+    # 获取所有策略类型
+    all_strategies = cleaned_df['sub_category'].unique().tolist()
+    
+    # 2. Stage A: 识别 Top Alpha（return_1y Top 10）
+    top_alpha = identify_top_alpha(cleaned_df)
+    
+    # 3. Stage B: 分位数计算与过滤
+    df_with_pct = calculate_percentiles(cleaned_df)
+    filtered_pool, excluded = apply_filter_rules(df_with_pct)
+    
+    # 4. Stage C1: 轮询分桶
+    bucketed = assign_buckets(filtered_pool)
+    
+    # 5. Stage C2: 桶内优选
+    selected = bucket_selection(bucketed)
+    
+    # 6. Stage C3: 策略覆盖
+    with_coverage = ensure_strategy_coverage(selected, filtered_pool, all_strategies)
+    
+    # 7. Stage C4: Alpha 注入
+    final_buckets = inject_top_alpha(with_coverage, top_alpha)
+    
+    return {
+        'top_alpha': top_alpha,
+        'filtered_pool': filtered_pool,
+        'final_buckets': final_buckets,
+        'excluded': excluded
+    }
+```
+
+### 流程图
+
+```
+原始产品池 (≈1200)
+    │
+    ▼
+┌─────────────────────────────────────┐
+│  Stage A: 识别 Top 10 Alpha         │
+│  (按 return_1y 排序取前 10)         │
+└─────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────┐
+│  Stage B1: 按策略分组计算分位数      │
+│  (return_3y, volatility_3y, sharpe) │
+└─────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────┐
+│  Stage B2: 剔除低质量产品            │
+│  - 收益最差 10%                     │
+│  - 夏普最差 10%                     │
+│  - 高波动 + 收益偏弱                 │
+└─────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────┐
+│  Stage C1: 轮询分桶 (5 桶)           │
+│  按 return_1y 排序后轮询分配         │
+└─────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────┐
+│  Stage C2: 桶内多维优选              │
+│  保留 Top 20% 收益/夏普/低波动       │
+└─────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────┐
+│  Stage C3: 策略覆盖补充              │
+│  确保 16 种策略都有代表              │
+└─────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────┐
+│  Stage C4: Top Alpha 注入           │
+│  每个桶都包含 Top 10 Alpha 产品      │
+└─────────────────────────────────────┘
+    │
+    ▼
+  5 个产品桶 (Bucket 1-5)
+```
+
+---
+
+## 六、脚本使用说明
+
+完整实现代码见 `bucket_filter.py`，运行方式：
+
+```bash
+python bucket_filter.py
+```
+
+输出文件结构：
+
+```
+outputs/
+├── top_return_set.csv              # Top 10 强 Alpha 产品
+├── filtered_pool.csv               # 过滤后候选池
+├── bucket_1.csv ~ bucket_5.csv     # 含分桶元信息
+└── raw_format/
+    └── bucket_1_raw.csv ~ bucket_5_raw.csv  # 原始格式（与输入一致）
+```
