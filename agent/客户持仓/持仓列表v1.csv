@@ -1,0 +1,5 @@
+product_code,product_name,asset_class,sub_category,investment_amount_wan,current_value_wan,floating_pnl,floating_pnl_rate,holding_days,risk_level,redemption_rule
+HBB001,XX货币宝,现金类,货币市场基金,50.00,49.85,-0.15,-0.003,180,1,T+0
+ZQJ002,YY稳健债基,固收类,中短期纯债基金,100.00,88.00,-12.00,-0.120,400,2,T+7
+HHC003,ZZ成长精选混合,权益类,主动管理型偏股混合基金,80.00,56.00,-24.00,-0.300,280,3,T+3
+SGQ004,AA私募股权基金,另类资产,私募股权投资基金,200.00,170.00,-30.00,-0.150,600,5,Locked:2026-12-31
