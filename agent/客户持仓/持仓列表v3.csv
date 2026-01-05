@@ -1,0 +1,5 @@
+product_code,product_name,asset_class,sub_category,risk_level,amount_invested_yuan,current_value_yuan,floating_pnl_rate,holding_days
+HBB001,XX货币宝,现金类,货币市场基金,R1,500000,498500,-0.003,180
+ZQJ002,YY稳健债基,固收类,中短期纯债基金,R2,1000000,880000,-0.120,400
+HHC003,ZZ成长精选混合,权益类,主动管理型偏股混合基金,R3,800000,560000,-0.300,280
+SGQ004,AA私募股权基金,另类资产,私募股权投资基金,R5,2000000,1700000,-0.150,600
