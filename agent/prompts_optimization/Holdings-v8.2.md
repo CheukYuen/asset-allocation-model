@@ -1,11 +1,15 @@
 你是一名具备金融分析、量化研究与理财规划能力的专业投资顾问。你擅长通过量化数据挖掘市场信号，并能将复杂的宏观逻辑转化为可落地的投资建议。
 
-以下是客户风险等级：
+# === 客户基本信息 ===
+
+## 风险承受能力等级
 ```json
 {"client_risk_tolerance":"C5"}
 ```
 
-以下是客户当前持仓结构概览:
+# === 客户持仓现状 ===
+
+## 持仓结构概览（按大类）
 ```csv
 asset_class,asset_class_allocation_percentage,asset_class_initial_investment_cny_ten_thousands,asset_class_avg_unrealized_return_rate
 现金类,0.0690,50.00,-0.0050
@@ -14,7 +18,7 @@ asset_class,asset_class_allocation_percentage,asset_class_initial_investment_cny
 另类资产,0.4351,315.00,-0.1405
 ```
 
-以下是客户在当前时点的【真实持仓快照列表】，用于客户投资风险识别与保护机制分析。
+## 真实持仓快照（明细产品）
 ```csv
 product_code,product_name,asset_class,sub_category,risk_level,initial_investment_cny_ten_thousands,current_market_value_cny_ten_thousands,unrealized_return_rate,allocation_percentage
 PAMMF01,平安日添利货币基金,现金类,现金类,R1,30.00,29.85,-0.005,0.0487
@@ -30,7 +34,7 @@ PAALT02,平安量化对冲私募证券,另类资产,量化对冲,R5,55.00,52.25,
 PAALT03,平安产业成长私募股权基金,另类资产,PE/VC 股权,R5,220.00,187.00,-0.150,0.3058
 ```
 
-以下是截至2026年1月的关键宏观经济与市场数据（来源于官方统计与Wind）：
+# === 当前宏观经济与市场环境（截至2026年1月）===
 ```csv
 indicator_id,ref_month,value,unit,adjustment,source,data_type
 CPI_YOY,2024-01,-0.8,%,YoY,NBS,Inflation
@@ -266,13 +270,13 @@ YIELD_10Y,2025-12,1.844,%,Level,CHINA_BOND,Rate
 YIELD_10Y,2026-01,1.861,%,Level,CHINA_BOND,Rate
 ```
 
-# === 长期风险结构基准（Structural Risk Benchmark, 2011–2025） ===
+# === 长期风险结构基准（2011–2025） ===
 
 【说明】  
 本节提供基于 2011–2025 年月度收益率构建的长期风险结构基准，反映四大类中国资产的结构性风险特征。  
 所有矩阵均已按年化处理（σ×√12）。
 
-## 1. 年化波动率向量（Annualized Volatility Vector）
+## 年化波动率向量
 ```csv
 asset_class,sigma_ann
 BOND,0.0201
@@ -281,7 +285,7 @@ COMMODITY,0.1013
 EQUITY,0.2163
 ```
 
-## 2. 年化协方差矩阵（Annualized Covariance Matrix Σ）
+## 年化协方差矩阵（Σ）
 ```csv
 asset,bond_cn_composite_fullprice_return,cash_cn_mmf_return,commodity_cn_nhci_return,equity_cn_csi300_return
 bond_cn_composite_fullprice_return,0.000403,0.000004,-0.000575,-0.000676
@@ -290,7 +294,7 @@ commodity_cn_nhci_return,-0.000575,-0.000024,0.010262,0.002503
 equity_cn_csi300_return,-0.000676,0.000059,0.002503,0.046798
 ```
 
-## 3. 长期相关性矩阵（Correlation Matrix ρ）
+## 长期相关性矩阵（ρ）
 ```csv
 asset,bond_cn_composite_fullprice_return,cash_cn_mmf_return,commodity_cn_nhci_return,equity_cn_csi300_return
 bond_cn_composite_fullprice_return,1.000,0.062,-0.282,-0.155
@@ -333,18 +337,17 @@ date,quarter_label,1y_cny_gov_yield,10y_cny_gov_yield,term_spread
 下表为中国市场“四大类资产”的基准画像，用作资产配置与组合分析的参考坐标系。
 说明：
 - 所有 Sharpe Ratio 均基于日频超额收益计算：
-  超额收益 = 资产日收益 − 同期 1 年期中国国债日化收益（252 日年化）
+  超额收益 = 资产日收益 − 同期 1 年期国债收益率动态调整。当前分析以 **1.3372%** 为无风险利率基准。
 - Sharpe 分别在 1Y / 3Y / 5Y 滚动窗口内计算
-- 数据截止日期：2025年12月11日
 ```csv
 asset_class,benchmark_index,ann_return_1y,ann_return_3y,ann_return_5y,ann_vol_1y,ann_vol_3y,ann_vol_5y,sharpe_ratio_1y,sharpe_ratio_3y,sharpe_ratio_5y
-CASH,申万宏源货币基金指数,0.0123,0.0157,0.0172,0.0004,0.0009,0.0010,-1.7461,-1.2996,-1.4286
-BOND,中债综合指数（全价）,0.0012,0.0186,0.0174,0.0248,0.0174,0.0162,-0.1894,0.0892,
-EQUITY,沪深300指数（价格）,0.1528,0.0684,-0.0029,0.1269,0.1790,0.1804,0.8323,0.3301,-0.1845
-COMMODITY,南华商品指数,-0.0123,-0.0473,0.0117,0.0527,0.0721,0.1242,-0.7200,-2.0727,-0.3466
+CASH,申万宏源货币基金指数,0.0123,0.0157,0.0172,0.0004,0.0009,0.0010,-3.0085,1.9906,3.3071
+BOND,中债综合指数（全价）,0.0012,0.0186,0.0174,0.0248,0.0174,0.0162,-1.6370,0.2384,0.1466
+EQUITY,沪深300指数（价格）,0.1528,0.0684,-0.0029,0.1269,0.1790,0.1804,1.0008,0.2864,-0.1545
+COMMODITY,南华商品指数,-0.0123,-0.0473,0.0117,0.0527,0.0721,0.1242,-0.1442,-0.7619,-0.0497
 ```
 
-# === Strategy Benchmark (Median Profile) ===
+# === Sub Category Benchmark (Median Profile) ===
 下表为中国市场一级策略（sub_category）的Benchmark 中位数画像，用于产品筛选、策略比较与资产配置阶段的参考坐标系。
 ```csv
 sub_category,return_1y,return_3y,return_5y,volatiliy_1y,volatility_3y,volatility_5y,max_drawdown_1y,max_drawdown_2y,max_drawdown_3y,sharpe_ratio_1y,sharpe_ratio_3y,sharpe_ratio_5y
