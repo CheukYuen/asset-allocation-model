@@ -7,11 +7,11 @@
 
 以下是客户当前持仓结构概览:
 ```csv
-asset_class,asset_class_initial_investment_cny_ten_thousands,asset_class_allocation_percentage,asset_class_avg_unrealized_return_rate
-现金类,50.00,0.0690,-0.0050
-固收类,180.00,0.2486,-0.1056
-权益类,220.00,0.3039,-0.2767
-另类资产,315.00,0.4351,-0.1405
+asset_class,asset_class_allocation_percentage,asset_class_initial_investment_cny_ten_thousands,asset_class_avg_unrealized_return_rate
+现金类,0.0690,50.00,-0.0050
+固收类,0.2486,180.00,-0.1056
+权益类,0.3039,220.00,-0.2767
+另类资产,0.4351,315.00,-0.1405
 ```
 
 以下是客户在当前时点的【真实持仓快照列表】，用于客户投资风险识别与保护机制分析。
