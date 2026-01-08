@@ -340,8 +340,8 @@ date,quarter_label,1y_cny_gov_yield,10y_cny_gov_yield,term_spread
 # === Benchmark ===
 下表为中国市场“四大类资产”的基准画像，用作资产配置与组合分析的参考坐标系。
 说明：
-- 所有 Sharpe Ratio 均基于日频超额收益计算：
-  超额收益 = 资产日收益 − 同期 1 年期国债收益率动态调整。当前分析以 **1.3372%** 为无风险利率基准。
+- 所有 Sharpe Ratio 均基于月度超额收益计算：
+  超额收益 = 资产月度收益 − 同期月度无风险利率
 - Sharpe 分别在 1Y / 3Y / 5Y 滚动窗口内计算
 ```csv
 asset_class,benchmark_index,ann_return_1y,ann_return_3y,ann_return_5y,ann_vol_1y,ann_vol_3y,ann_vol_5y,sharpe_ratio_1y,sharpe_ratio_3y,sharpe_ratio_5y
