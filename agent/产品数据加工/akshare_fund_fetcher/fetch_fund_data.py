@@ -346,7 +346,7 @@ def get_fund_info(fund_code: str) -> Optional[Dict]:
         # 获取基金名称和基本信息
         product_name = f"基金{fund_code}"
         fund_type = '未知'
-        asset_class = '股票类'
+        asset_class = '权益类'
         sub_category = '股票型'
         
         try:
@@ -368,7 +368,7 @@ def get_fund_info(fund_code: str) -> Optional[Dict]:
                         asset_class = '混合类'
                         sub_category = '混合型'
                     elif 'ETF' in str(fund_type) or '指数' in str(fund_type):
-                        asset_class = '股票类'
+                        asset_class = '权益类'
                         sub_category = '股票型'
         except Exception as e:
             print(f"  ⚠ 获取基金名称失败，使用默认值: {e}")
@@ -416,12 +416,11 @@ def generate_fund_csv(fund_codes: List[str], output_file: str = "真实产品数
     """
     # CSV 列顺序（必须与真实产品数据v1.csv 格式一致）
     columns = [
-        'product_name', 'product_code', 'currency', 'asset_class', 'sub_category',
+        'product_name', 'product_code', 'currency', 'asset_class', 'sub_category', 'risk_level',
         'return_1y', 'return_3y', 'return_5y',
         'volatility_1y', 'volatility_3y', 'volatility_5y',
         'max_drawdown_1y', 'max_drawdown_2y', 'max_drawdown_3y',
-        'sharpe_ratio_1y', 'sharpe_ratio_3y', 'sharpe_ratio_5y',
-        'risk_level'
+        'sharpe_ratio_1y', 'sharpe_ratio_3y', 'sharpe_ratio_5y'
     ]
     
     results = []

@@ -50,6 +50,58 @@ STRING_COLUMNS = {'product_code': str}
 # 数据加载与清洗
 # =============================================================================
 
+def normalize_asset_class_and_sub_category(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    标准化 asset_class 和 sub_category 到 PRD 标准口径
+    
+    根据 PRD/asset_classes_and_strategies_4x16.md 进行映射
+    """
+    result = df.copy()
+    
+    # asset_class 映射：股票类 -> 权益类，另类 -> 另类资产
+    if 'asset_class' in result.columns:
+        result['asset_class'] = result['asset_class'].replace('股票类', '权益类')
+        result['asset_class'] = result['asset_class'].replace('另类', '另类资产')
+    
+    # sub_category 映射到标准口径
+    if 'sub_category' in result.columns:
+        # 权益类（原股票类）的 sub_category 映射
+        equity_mask = result['asset_class'] == '权益类'
+        result.loc[equity_mask & (result['sub_category'] == '行业主题型'), 'sub_category'] = '股票型'
+        result.loc[equity_mask & (result['sub_category'] == '股票增强型'), 'sub_category'] = '股票型'
+        
+        # 量化多因子属于另类资产，需要同时调整 asset_class
+        quant_mask = result['sub_category'] == '量化多因子'
+        result.loc[quant_mask, 'asset_class'] = '另类资产'
+        result.loc[quant_mask, 'sub_category'] = '量化对冲'
+        
+        # 固收类的 sub_category 映射
+        result.loc[result['sub_category'] == '短债型', 'sub_category'] = '纯债'
+        result.loc[result['sub_category'] == '纯债型', 'sub_category'] = '纯债'
+        result.loc[result['sub_category'] == '可转债型', 'sub_category'] = '固收+'
+        result.loc[result['sub_category'] == '偏债混合型', 'sub_category'] = '固收+'
+        result.loc[result['sub_category'] == '二级债基', 'sub_category'] = '固收+'
+        result.loc[result['sub_category'] == '固收增强型', 'sub_category'] = '固收+'
+        
+        # 调整固收类产品的 asset_class（从"固收+"改为"固收类"）
+        result.loc[result['asset_class'] == '固收+', 'asset_class'] = '固收类'
+        
+        # 现金类的 sub_category 映射
+        result.loc[result['sub_category'] == '现金类-其他', 'sub_category'] = '现金类'
+        result.loc[result['sub_category'] == '货币基金', 'sub_category'] = '现金类'
+        
+        # 调整纯债产品的 asset_class（从"现金类"改为"固收类"）
+        result.loc[(result['asset_class'] == '现金类') & (result['sub_category'] == '纯债'), 'asset_class'] = '固收类'
+        
+        # 另类的 sub_category 映射
+        result.loc[result['sub_category'] == '商品型', 'sub_category'] = '商品及宏观策略'
+        result.loc[result['sub_category'] == '市场中性', 'sub_category'] = '量化对冲'
+        result.loc[result['sub_category'] == '多策略对冲', 'sub_category'] = '量化对冲'
+        result.loc[result['sub_category'] == 'CTA策略', 'sub_category'] = '商品及宏观策略'
+    
+    return result
+
+
 def load_and_clean_data(filepath: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     加载 CSV 并清洗数据
@@ -60,6 +112,9 @@ def load_and_clean_data(filepath: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     # 显式指定 product_code 为字符串类型，防止前导零丢失
     df = pd.read_csv(filepath, dtype=STRING_COLUMNS)
+    
+    # 标准化 asset_class 和 sub_category
+    df = normalize_asset_class_and_sub_category(df)
     
     # 确保所有必需列存在
     for col in REQUIRED_COLUMNS:
