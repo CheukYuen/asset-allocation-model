@@ -1,23 +1,48 @@
 你是一名具备金融分析、量化研究与理财规划能力的专业投资顾问。你擅长通过量化数据挖掘市场信号，并能将复杂的宏观逻辑转化为可落地的投资建议。（在所有数据与结论的使用上，仅允许基于模型上下文中已明确提供的数据；若上下文未给出支撑信息，请明确说明“无法从当前数据中确定”。）
 
-# 任务目标
-请基于以下客户画像，运用多种主流资产配置模型，为该客户定制化生成**1到3套差异化、可执行的资产配置方案**。
-
 # 客户基本信息
 
-## 客户投资前提 (Investment Eligibility)
+## 风险承受能力等级
+
 ```json
-{
-  "client_risk_tolerance": "C3",
-  "initial_investment_cny_ten_thousands": 1000,
-  "target_annual_return_rate": 0.08,
-  "investment_objectives": "增值",
-  "life_stage": "单身青年",
-  "allowed_product_risk_levels": ["R1", "R2", "R3"]
-}
+{"client_risk_tolerance":"C5"}
+```
+
+# 客户持仓现状
+
+## 持仓结构概览（按大类）
+
+```csv
+asset_class,asset_class_allocation_percentage,asset_class_initial_investment_cny_ten_thousands,asset_class_avg_unrealized_return_rate
+现金类,0.0690,50.00,-0.0050
+固收类,0.2486,180.00,-0.1056
+权益类,0.3039,220.00,-0.2767
+另类资产,0.4351,315.00,-0.1405
+```
+
+## 真实持仓快照（明细产品）
+
+**一级策略（`sub_category`）口径说明（权益资产比例）**：
+- **固收+**：权益资产占比 **< 20%**
+- **股债混合**：权益资产占比 **20–50%**
+
+```csv
+product_code,product_name,asset_class,sub_category,initial_investment_cny_ten_thousands,current_market_value_cny_ten_thousands,unrealized_return_rate,allocation_percentage,risk_level
+PAMMF01,平安日添利货币基金,现金类,现金类,30.00,29.85,-0.005,0.0487,R1
+PAMMF02,平安灵活宝现金管理,现金类,现金类,20.00,19.90,-0.005,0.0325,R1
+PABND01,平安中短债纯债基金,固收类,纯债,60.00,55.20,-0.080,0.0901,R2
+PABND02,平安信用债精选基金,固收类,纯债,50.00,44.50,-0.110,0.0727,R2
+PABND03,平安固收增强理财,固收类,固收+,70.00,60.90,-0.130,0.0995,R3
+PAEQ01,平安均衡配置混合,权益类,股债混合,60.00,45.00,-0.250,0.0735,R3
+PAEQ02,平安成长精选混合,权益类,股票型,90.00,63.00,-0.300,0.1030,R4
+PAEQ03,平安沪深300指数增强,权益类,股票型,70.00,50.40,-0.280,0.0824,R4
+PAALT01,平安商品及宏观策略,另类资产,商品及宏观策略,40.00,33.60,-0.160,0.0549,R4
+PAALT02,平安量化对冲私募证券,另类资产,量化对冲,55.00,52.25,-0.050,0.0854,R5
+PAALT03,平安产业成长私募股权基金,另类资产,PE/VC 股权,220.00,187.00,-0.150,0.3058,R5
 ```
 
 # 当前宏观经济与市场环境（截至2026年1月）
+
 ```csv
 indicator_id,ref_month,value,unit,adjustment,source,data_type
 CPI_YOY,2024-01,-0.8,%,YoY,NBS,Inflation
@@ -255,11 +280,10 @@ YIELD_10Y,2026-01,1.861,%,Level,CHINA_BOND,Rate
 
 # 长期风险结构基准（2011–2025）
 
-【说明】  
-本节提供基于 2011–2025 年月度收益率构建的长期风险结构基准，反映四大类中国资产的结构性风险特征。  
-所有矩阵均已按年化处理（σ×√12）。
+**说明**：本节提供基于 2011–2025 年月度收益率构建的长期风险结构基准，反映四大类中国资产的结构性风险特征。所有矩阵均已按年化处理（σ×√12）。
 
 ## 年化波动率向量（σ）
+
 ```csv
 asset_class,sigma_ann
 BOND,0.0201
@@ -269,6 +293,7 @@ EQUITY,0.2163
 ```
 
 ## 年化协方差矩阵（Σ）
+
 ```csv
 asset,bond_cn_composite_fullprice_return,cash_cn_mmf_return,commodity_cn_nhci_return,equity_cn_csi300_return
 bond_cn_composite_fullprice_return,0.000403,0.000004,-0.000575,-0.000676
@@ -278,6 +303,7 @@ equity_cn_csi300_return,-0.000676,0.000059,0.002503,0.046798
 ```
 
 ## 长期相关性矩阵（ρ）
+
 ```csv
 asset,bond_cn_composite_fullprice_return,cash_cn_mmf_return,commodity_cn_nhci_return,equity_cn_csi300_return
 bond_cn_composite_fullprice_return,1.000,0.062,-0.282,-0.155
@@ -287,10 +313,12 @@ equity_cn_csi300_return,-0.155,0.085,0.114,1.000
 ```
 
 # 无风险利率（季度）
-指标口径：
-- CBA00101：1 年期中债国债到期收益率  
-- CBA00601：10 年期中债国债到期收益率  
-派生字段：term_spread = 10Y − 1Y
+
+**指标口径**：
+- **CBA00101**：1 年期中债国债到期收益率  
+- **CBA00601**：10 年期中债国债到期收益率  
+
+**派生字段**：`term_spread = 10Y − 1Y`
 ```csv
 date,quarter_label,1y_cny_gov_yield,10y_cny_gov_yield,term_spread
 2021-03-31,2021Q1,2.5770,3.1887,0.6117
@@ -316,10 +344,10 @@ date,quarter_label,1y_cny_gov_yield,10y_cny_gov_yield,term_spread
 ```
 
 # 四大类资产 Benchmark
+
 下表为中国市场“四大类资产”的基准画像，用作资产配置与组合分析的参考坐标系。
-说明：
-- 所有 Sharpe Ratio 均基于月度超额收益计算：
-  超额收益 = 资产月度收益 − 同期月度无风险利率
+**说明**：
+- 所有 Sharpe Ratio 均基于月度超额收益计算：超额收益 = 资产月度收益 − 同期月度无风险利率
 - Sharpe 分别在 1Y / 3Y / 5Y 滚动窗口内计算
 ```csv
 asset_class,benchmark_index,ann_return_1y,ann_return_3y,ann_return_5y,ann_vol_1y,ann_vol_3y,ann_vol_5y,sharpe_ratio_1y,sharpe_ratio_3y,sharpe_ratio_5y
@@ -329,8 +357,9 @@ EQUITY,沪深300指数（价格）,0.1528,0.0684,-0.0029,0.1269,0.1790,0.1804,1.
 COMMODITY,南华商品指数,-0.0123,-0.0473,0.0117,0.0527,0.0721,0.1242,-0.1442,-0.7619,-0.0497
 ```
 
-# 一级策略 Benchmark (中位数画像)
-下表为中国市场一级策略（sub_category）的Benchmark 中位数画像，用于产品筛选、策略比较与资产配置阶段的参考坐标系。
+# 一级策略 Benchmark（中位数画像）
+
+下表为中国市场一级策略（`sub_category`）的 Benchmark 中位数画像，用于产品筛选、策略比较与资产配置阶段的参考坐标系。
 ```csv
 sub_category,return_1y,return_3y,return_5y,volatiliy_1y,volatility_3y,volatility_5y,max_drawdown_1y,max_drawdown_2y,max_drawdown_3y,sharpe_ratio_1y,sharpe_ratio_3y,sharpe_ratio_5y
 现金类,0.0285,0.0274,0.0287,0.0088,0.0102,0.0083,-0.0076,-0.0161,-0.0174,2.375,2.0925,1.95
@@ -342,6 +371,7 @@ sub_category,return_1y,return_3y,return_5y,volatiliy_1y,volatility_3y,volatility
 ```
 
 # 可投资产品池
+
 ```csv
 product_name,product_code,currency,asset_class,sub_category,return_1y,return_3y,return_5y,volatility_1y,volatility_3y,volatility_5y,max_drawdown_1y,max_drawdown_2y,max_drawdown_3y,sharpe_ratio_1y,sharpe_ratio_3y,sharpe_ratio_5y,risk_level
 中欧医疗健康C,530012,CNY,权益类,股票型,0.3142,0.1806,,0.1633,0.2033,,-0.2797,-0.4037,,0.93,0.98,0.43,R4
