@@ -1,0 +1,16 @@
+asset_class,market,sector,ticker,ref_date,value,unit,source,data_type
+Equity,US,Broad_Market,SPX,2026-01-14,5050,Index_Level,YahooFinance,Equity
+Equity,US,Broad_Market,IXIC,2026-01-14,23471.75,Index_Level,YahooFinance,Equity
+Equity,Asia,Japan,NI225,2026-01-13,38400,Index_Level,Reuters,Equity
+Equity,Asia,HongKong,HSI,2026-01-14,25434.23,Index_Level,HSBC,Equity
+Commodity,Global,Energy,CL1!,2026-01-13,61.15,USD/bbl,FastBull,Commodity
+Commodity,Global,Metal,Gold,2026-01-13,4634,USD/oz,FastBull,Commodity
+Bond,US,Government,USGG10YR,2026-01-08,4.10,%,MacroMicro,Rate
+Bond,CN,Government,CGB_10Y,2026-01-14,2.85,%,ChinaBond,Rate
+FX,Major,Cross,EURUSD,2026-01-14,1.1636,/,YahooFinance,FX
+FX,Major,Cross,USDJPY,2026-01-14,148.50,/,Reuters,FX
+Volatility,US,Index,VIX,2026-01-14,17.8,Index_Level,CBOE,Risk_Sentiment
+Volatility,China,Index,CVIX,2026-01-14,19.5,Index_Level,SSE,Risk_Sentiment
+Equity,China,Broad_Market,SSEC,2026-01-15,4112.60,Index_Level,CailianShe,Equity
+Equity,China,BlueChip,SZCI,2026-01-15,19129.63,Index_Level,DongFangCaiFu,Equity
+Equity,China,Growth,CYB,2026-01-15,3302.31,Index_Level,SZSE,Equity
