@@ -385,58 +385,6 @@ FX,Major,Cross_Rate,USDJPY,2026-01-16,158.5650,,FX
 Volatility,US,Implied_Vol_Index,VIX,2026-01-16,15.45,Index_Level,Risk_Sentiment
 ```
 
-## 近一年宏观画像
-```csv
-asset_class,market,sector,ticker,metric,value,unit,period,as_of_date,source,comment
-Equity,US,Broad_Market,SPX,YTD_Return,5.2,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,US,Broad_Market,SPX,Max_Drawdown,-12.5,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,US,Broad_Market,SPX,Annualized_Volatility,14.8,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,US,Broad_Market,SPX,Sharpe_Ratio,0.42,,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,US,Broad_Market,IXIC,YTD_Return,11.6,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,US,Broad_Market,IXIC,Max_Drawdown,-15.0,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,US,Broad_Market,IXIC,Annualized_Volatility,19.5,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,US,Broad_Market,IXIC,Sharpe_Ratio,0.60,,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,US,Growth,NDX,YTD_Return,30.5,%,2024-12 to 2025-12,2025-12-31,NASDAQ_Monthly,Approx
-Equity,US,Growth,NDX,Max_Drawdown,-12.5,%,2024-12 to 2025-12,2025-12-31,NASDAQ_Monthly,Approx
-Equity,US,Growth,NDX,Annualized_Volatility,16.2,%,2024-12 to 2025-12,2025-12-31,NASDAQ_Monthly,Approx
-Equity,US,Growth,NDX,Sharpe_Ratio,1.63,,2024-12 to 2025-12,2025-12-31,NASDAQ_Monthly,Approx
-Equity,Asia,Japan,NI225,YTD_Return,14.0,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,Asia,Japan,NI225,Max_Drawdown,-9.8,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,Asia,Japan,NI225,Annualized_Volatility,13.5,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,Asia,Japan,NI225,Sharpe_Ratio,0.82,,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,Asia,HongKong,HSI,YTD_Return,6.0,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,Asia,HongKong,HSI,Max_Drawdown,-18.5,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,Asia,HongKong,HSI,Annualized_Volatility,20.0,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,Asia,HongKong,HSI,Sharpe_Ratio,0.25,,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,China,Broad_Market,SSEC,YTD_Return,6.8,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,China,Broad_Market,SSEC,Max_Drawdown,-17.5,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,China,Broad_Market,SSEC,Annualized_Volatility,18.2,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,China,Broad_Market,SSEC,Sharpe_Ratio,0.21,,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,China,BlueChip,SZCI,YTD_Return,9.5,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,China,BlueChip,SZCI,Max_Drawdown,-15.2,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,China,BlueChip,SZCI,Annualized_Volatility,17.0,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,China,BlueChip,SZCI,Sharpe_Ratio,0.32,,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,China,Growth,CYB,YTD_Return,12.6,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,China,Growth,CYB,Max_Drawdown,-22.8,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,China,Growth,CYB,Annualized_Volatility,24.5,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Equity,China,Growth,CYB,Sharpe_Ratio,0.34,,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Commodity,Global,Energy,CL1!,YTD_Return,-18.0,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Commodity,Global,Energy,CL1!,Max_Drawdown,-22.5,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Commodity,Global,Energy,CL1!,Annualized_Volatility,24.0,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Commodity,Global,Metal,Gold,YTD_Return,26.5,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Commodity,Global,Metal,Gold,Max_Drawdown,-6.5,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Commodity,Global,Metal,Gold,Annualized_Volatility,15.0,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Bond,US,Government,USGG10YR,Total_Return,1.2,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Bond,US,Government,USGG10YR,Annualized_Volatility,6.5,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Bond,China,Government,CGB_10Y,Total_Return,5.7,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Bond,China,Government,CGB_10Y,Annualized_Volatility,4.2,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-FX,Major,Cross,EURUSD,YTD_Return,7.2,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-FX,Asia,Cross,USDJPY,YTD_Return,4.5,%,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Volatility,US,Index,VIX,Average_Level,16.5,,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-Volatility,China,Index,CVIX,Average_Level,19.2,,2025-01 to 2026-01,2026-01-15,Public_Estimate,Approx
-```
-
-
 # 新闻数据
 
 ```csv
