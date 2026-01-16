@@ -1,5 +1,5 @@
 # 任务目标
-请撰写一份当前的市场解读报告。
+基于提供的全部数据与信息，撰写一份《2026年1月中国及全球市场解读报告》。
 
 # 角色设定
 你是一名平安银行的专业投资顾问，具备金融分析、量化研究与理财规划能力。你擅长通过量化数据挖掘市场信号，并将复杂的宏观逻辑转化为可落地的投资建议。所有结论必须基于上下文中明确提供的数据；若信息不足，应直接声明“无法从当前数据中确定”。
@@ -365,6 +365,20 @@ INVESTMENT_FA_YOY,2025-10,-1.7,%,YoY,NBS,Investment
 INVESTMENT_FA_YOY,2025-11,-2.6,%,YoY,NBS,Investment
 ```
 
+# 新闻数据
+
+```csv
+source,datetime,title,summary,event_id,sentiment_score,related_indicators,impact_level,data_type
+Xinhua,2026-01-15T17:00:00,"央行全面下调各类结构性货币政策工具利率25个基点","中国人民银行1月15日宣布，自1月19日起下调各项再贷款利率0.25个百分点，1年期再贷款利率降至1.25%，其他期限同步调整，同时设立民营企业再贷款，额度1万亿元。",POLICY_MONETARY_CHN_STRUCTURAL_CUT,0.8,"LPR_1Y,CREDIT_GROWTH_PRIVATE_ENTERPRISE_YOY,GDP_YOY",High,News
+财联社,2026-01-15T17:30:00,"央行：2026年降准降息还有一定空间","人民银行副行长邹澜在国新办新闻发布会上表示，当前金融机构平均法定存准率6.3%，叠加银行净息差企稳，政策利率下行有望进一步释放流动性，市场普遍预计上半年或迎降息窗口。",POLICY_MONETARY_CHN_RRR_CUT_SPACE,0.6,"M2_YOY,LOAN_GROWTH_YOY,BOND_YIELD_10Y",High,News
+WhiteHouse,2026-01-14T19:00:00,"美国宣布对部分进口半导体及制造设备加征25%关税","美国白宫1月14日发布公告，从1月15日起对特定半导体、半导体制造设备和衍生品加征25%的进口从价关税，以保护本土产业和国家安全。",POLICY_TRADE_US_SEMICONDUCTOR_TARIFF,-0.5,"SEMICONDUCTOR_IMPORT_YOY,TECH_INVESTMENT_YOY,USD_CNY_EXCHANGE_RATE",High,News
+Bloomberg,2026-01-14T21:00:00,"特斯拉将停售FSD买断版 全面转向订阅制模式","特斯拉官网公告显示，自2026年2月1日起，将在全球范围内停止销售Full Self-Driving (FSD)功能买断版，全面转向每月99美元的订阅制服务，以提高用户普及率。",COMPANY_TESLA_FSD_SUBSCRIPTION,-0.3,"AUTOS_SALES_EV_YOY,TSLA_STOCK_PRICE,EV_INFRASTRUCTURE_INVESTMENT",Medium,News
+FederalReserve,2026-01-14T22:00:00,"美联储发布2026年首份褐皮书 多数地区经济温和增长","美联储2026年首份《褐皮书》显示，十二个联邦储备区中有八个区经济活动以轻微至温和速度增长，就业情况大多没有变化，绝大多数地区价格以温和速度增长，关税成本压力是一致主题。",DATA_FED_BEIGE_BOOK,0.2,"US_GDP_QOQ,US_EMPLOYMENT_RATE,US_CPI_YOY",High,News
+新华网,2026-01-12T09:00:00,"开年首次国常会：财政金融协同精准促内需","国务院常务会议部署一揽子政策，精准聚焦消费与投资，通过贴息、担保、风险分担等工具，形成'财政撬动金融、金融引导社会资本'的高效传导链条，重点支持汽车、家电等消费领域。",POLICY_FISCAL_CHN_CONSUMPTION_SUPPORT,0.7,"CONSUMPTION_RETAIL_SALES_YOY,AUTOS_SALES_PASSENGER_YOY,GDP_YOY",High,News
+Reuters,2026-01-15T10:00:00,"苹果与谷歌达成多年AI合作 Gemini赋能新版Siri","苹果与谷歌宣布达成多年AI战略合作，Gemini模型及云技术将赋能新版Siri与Apple Intelligence，同时坚守隐私标准，重塑移动智能体验，引发行业格局新变化。",COMPANY_APPLE_GOOGLE_AI_PARTNERSHIP,0.9,"TECH_STOCK_INDEX,AI_INVESTMENT_YOY,MOBILE_PHONE_SALES_YOY",Medium,News
+央行官网,2026-01-15T18:00:00,"央行扩大民营企业再贷款支持范围至中型企业","中国人民银行宣布在支农支小再贷款项下设立民营企业再贷款，额度1万亿元，将民营中型企业纳入支持范围，引导地方法人金融机构进一步聚焦重点，加力支持民营中小微企业。",POLICY_MONETARY_CHN_PRIVATE_ENTERPRISE_RELOAN,0.8,"PRIVATE_ENTERPRISE_PROFIT_YOY,CREDIT_GROWTH_SME_YOY,EMPLOYMENT_SME_RATE",High,News
+```
+
 # 行情数据
 
 ## 市场行情数据
@@ -383,20 +397,6 @@ Bond,US,Government_Bond_Yield,USGG10YR,2026-01-15,4.17,%,Rate
 FX,Major,Cross_Rate,EURUSD,2026-01-16,1.1612,,FX
 FX,Major,Cross_Rate,USDJPY,2026-01-16,158.5650,,FX
 Volatility,US,Implied_Vol_Index,VIX,2026-01-16,15.45,Index_Level,Risk_Sentiment
-```
-
-# 新闻数据
-
-```csv
-source,datetime,title,summary,event_id,sentiment_score,related_indicators,impact_level,data_type
-Xinhua,2026-01-15T17:00:00,"央行全面下调各类结构性货币政策工具利率25个基点","中国人民银行1月15日宣布，自1月19日起下调各项再贷款利率0.25个百分点，1年期再贷款利率降至1.25%，其他期限同步调整，同时设立民营企业再贷款，额度1万亿元。",POLICY_MONETARY_CHN_STRUCTURAL_CUT,0.8,"LPR_1Y,CREDIT_GROWTH_PRIVATE_ENTERPRISE_YOY,GDP_YOY",High,News
-财联社,2026-01-15T17:30:00,"央行：2026年降准降息还有一定空间","人民银行副行长邹澜在国新办新闻发布会上表示，当前金融机构平均法定存准率6.3%，叠加银行净息差企稳，政策利率下行有望进一步释放流动性，市场普遍预计上半年或迎降息窗口。",POLICY_MONETARY_CHN_RRR_CUT_SPACE,0.6,"M2_YOY,LOAN_GROWTH_YOY,BOND_YIELD_10Y",High,News
-WhiteHouse,2026-01-14T19:00:00,"美国宣布对部分进口半导体及制造设备加征25%关税","美国白宫1月14日发布公告，从1月15日起对特定半导体、半导体制造设备和衍生品加征25%的进口从价关税，以保护本土产业和国家安全。",POLICY_TRADE_US_SEMICONDUCTOR_TARIFF,-0.5,"SEMICONDUCTOR_IMPORT_YOY,TECH_INVESTMENT_YOY,USD_CNY_EXCHANGE_RATE",High,News
-Bloomberg,2026-01-14T21:00:00,"特斯拉将停售FSD买断版 全面转向订阅制模式","特斯拉官网公告显示，自2026年2月1日起，将在全球范围内停止销售Full Self-Driving (FSD)功能买断版，全面转向每月99美元的订阅制服务，以提高用户普及率。",COMPANY_TESLA_FSD_SUBSCRIPTION,-0.3,"AUTOS_SALES_EV_YOY,TSLA_STOCK_PRICE,EV_INFRASTRUCTURE_INVESTMENT",Medium,News
-FederalReserve,2026-01-14T22:00:00,"美联储发布2026年首份褐皮书 多数地区经济温和增长","美联储2026年首份《褐皮书》显示，十二个联邦储备区中有八个区经济活动以轻微至温和速度增长，就业情况大多没有变化，绝大多数地区价格以温和速度增长，关税成本压力是一致主题。",DATA_FED_BEIGE_BOOK,0.2,"US_GDP_QOQ,US_EMPLOYMENT_RATE,US_CPI_YOY",High,News
-新华网,2026-01-12T09:00:00,"开年首次国常会：财政金融协同精准促内需","国务院常务会议部署一揽子政策，精准聚焦消费与投资，通过贴息、担保、风险分担等工具，形成'财政撬动金融、金融引导社会资本'的高效传导链条，重点支持汽车、家电等消费领域。",POLICY_FISCAL_CHN_CONSUMPTION_SUPPORT,0.7,"CONSUMPTION_RETAIL_SALES_YOY,AUTOS_SALES_PASSENGER_YOY,GDP_YOY",High,News
-Reuters,2026-01-15T10:00:00,"苹果与谷歌达成多年AI合作 Gemini赋能新版Siri","苹果与谷歌宣布达成多年AI战略合作，Gemini模型及云技术将赋能新版Siri与Apple Intelligence，同时坚守隐私标准，重塑移动智能体验，引发行业格局新变化。",COMPANY_APPLE_GOOGLE_AI_PARTNERSHIP,0.9,"TECH_STOCK_INDEX,AI_INVESTMENT_YOY,MOBILE_PHONE_SALES_YOY",Medium,News
-央行官网,2026-01-15T18:00:00,"央行扩大民营企业再贷款支持范围至中型企业","中国人民银行宣布在支农支小再贷款项下设立民营企业再贷款，额度1万亿元，将民营中型企业纳入支持范围，引导地方法人金融机构进一步聚焦重点，加力支持民营中小微企业。",POLICY_MONETARY_CHN_PRIVATE_ENTERPRISE_RELOAN,0.8,"PRIVATE_ENTERPRISE_PROFIT_YOY,CREDIT_GROWTH_SME_YOY,EMPLOYMENT_SME_RATE",High,News
 ```
 
 # 长期风险结构基准（2011–2025）
