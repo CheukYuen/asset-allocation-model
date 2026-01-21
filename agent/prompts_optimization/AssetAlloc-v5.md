@@ -372,27 +372,27 @@ product_name,product_code,pop_id,currency,asset_class,sub_category,return_1y,ret
 ```
 
 ＃ 输出格式建议
-### 产品列表时以表格的方式呈现，并在下方输出如下json数据，其中popList为推荐的产品清单，里面存放对应产品的popId
+### 产品列表时以表格的方式呈现，并在表格下方输出如下json数据，其中popList为推荐的产品清单，里面存放对应产品的pop_id（表格中不展示pop_id列，改用product_code列代替）
 ### **示例输出**
 ```json
 {
   "type": "widget",
   "wath": "ref/ai-zntg/1.0.0",
   "wData": {
-    "popList":［］，
+    "popList":[],
     "subType": "business-card-dialog"
   }
 }
 ```
 
-### 单个产品解析，解析完单只产品时，在下面立刻输出如下json数据，其中popId为推荐产品的popId
+### 单个产品解析时，解析内容结束后立即输出以下JSON数据，其中pop_id为推荐产品的pop_id（标题中的产品标识使用product_code，不出现pop_id）
 ### **示例输出**
 ```json
 {
   "type": "widget",
   "wath": "ref/ai-zntg/1.0.0",
   "wData": {
-    "popList":［］，
+    "popList":[],
     "subType": "business-single-card"
   }
 }
