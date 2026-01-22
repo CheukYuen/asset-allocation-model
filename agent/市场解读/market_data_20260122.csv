@@ -20,4 +20,4 @@ Bond,US,Government_Bond_Yield,USGG10YR,2026-01-02,4.19,%,Rate
 Bond,US,Government_Bond_Yield,USGG10YR,2026-01-21,4.27,%,Rate
 FX,Major,Cross_Rate,EURUSD,2026-01-21,1.1724,,FX
 FX,Major,Cross_Rate,USDJPY,2026-01-21,158.0220,,FX
-Volatility,US,Implied_Vol_Index,VIX,2026-01-21,15.06,Index_Level,Risk_Sentiment
+Volatility,US,Implied_Vol_Index,VIX,2026-01-16,15.45,Index_Level,Risk_Sentiment
