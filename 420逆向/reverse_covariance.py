@@ -394,29 +394,31 @@ def main():
     # 保存结果
     print("步骤6: 保存结果...")
 
-    # 保存协方差矩阵
+    # 保存协方差矩阵 (保留6位小数)
     df_cov = pd.DataFrame(cov_matrix, index=asset_names, columns=asset_names)
+    df_cov = df_cov.round(6)
     df_cov.to_csv('reverse_covariance_matrix.csv')
     print("  ✓ 协方差矩阵保存至: reverse_covariance_matrix.csv")
 
-    # 保存相关性矩阵
+    # 保存相关性矩阵 (保留6位小数)
     df_corr = pd.DataFrame(corr_matrix, index=asset_names, columns=asset_names)
+    df_corr = df_corr.round(6)
     df_corr.to_csv('reverse_correlation_matrix.csv')
     print("  ✓ 相关性矩阵保存至: reverse_correlation_matrix.csv")
 
-    # 保存波动率
+    # 保存波动率 (保留6位小数)
     df_vol = pd.DataFrame({
         'asset': asset_names,
-        'volatility': volatility
+        'volatility': volatility.round(6)
     })
     df_vol.to_csv('reverse_volatility.csv', index=False)
     print("  ✓ 波动率向量保存至: reverse_volatility.csv")
 
-    # 保存组合波动率
+    # 保存组合波动率 (保留6位小数)
     df_portfolio_vol = pd.DataFrame({
         'portfolio_id': range(1, len(weights) + 1),
         'risk_level': [f'C{level}' for level in risk_levels],
-        'volatility': portfolio_vols
+        'volatility': portfolio_vols.round(6)
     })
     df_portfolio_vol.to_csv('reverse_portfolio_volatility.csv', index=False)
     print("  ✓ 组合波动率保存至: reverse_portfolio_volatility.csv")
