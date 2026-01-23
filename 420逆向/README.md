@@ -1,5 +1,9 @@
 # 协方差矩阵反向优化 (Covariance Matrix Reverse Optimization)
 
+> 📚 **文档导航**: 查看 [`INDEX.md`](./INDEX.md) 快速找到你需要的文档
+
+---
+
 ## 项目概述 (Overview)
 
 该项目通过**反向优化**方法,从105套投资组合配置中反推估计协方差矩阵,并与现有的历史协方差矩阵进行对比验证。
@@ -45,9 +49,12 @@ This project uses **reverse optimization** to estimate a covariance matrix from 
 │   ├── risk_aversion_by_level.csv     # 各风险等级的风险厌恶系数
 │   ├── portfolio_volatilities.csv     # 投资组合波动率对比
 │   └── validation_report.txt          # 完整验证报告
+├── reverse_covariance.py              # ⭐ 独立脚本 (单文件版本)
 ├── 105.csv                            # 输入: 105套投资组合
 ├── prompt.md                          # 输入: 现有协方差矩阵
-└── README.md                          # 本文件
+├── README.md                          # 本文件
+├── USAGE.md                           # 独立脚本使用说明
+└── MATHEMATICAL_PRINCIPLES.md         # 📚 数学原理详解
 ```
 
 ---
@@ -84,6 +91,18 @@ cat results/validation_report.txt
 # 查看CSV结果
 ls -lh results/*.csv
 ```
+
+---
+
+## 📚 数学原理详解
+
+**完整数学推导请参阅**: [`MATHEMATICAL_PRINCIPLES.md`](./MATHEMATICAL_PRINCIPLES.md)
+
+该文档包含：
+- 完整的数学推导过程
+- lifecycle、demand、risk_level 三个维度的详细作用分析
+- 信息来源的定量分析
+- 实例解析和常见问题
 
 ---
 
