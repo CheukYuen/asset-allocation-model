@@ -1,0 +1,191 @@
+# Cursor Prompt｜生成 mvo_105_weights_saa_int_bounds_plus.csv（不做 TAA，只做 SAA）
+
+你是量化研究工程师。请用 Python（pandas + numpy + scipy）实现“105 套 MVO SAA 配置 + 整数上下限（8个）+ 整数权重（%）”的生成器，并导出 CSV。
+
+## 0) 输入（硬编码为本 Prompt 给定内容，不要联网）
+### 0.1 四大类与顺序（必须固定，不允许重排）
+资产顺序：CASH, BOND, EQUITY, COMMODITY
+其中 COMMODITY=另类资产桶（黄金70% + 传统商品指数30%）
+
+### 0.2 年化期望收益率 μ（按上面资产顺序）
+mu = {
+  "CASH": 0.0262,
+  "BOND": 0.0119,
+  "EQUITY": 0.1307,
+  "COMMODITY": 0.0883
+}
+
+### 0.3 年化协方差矩阵 Σ（原始顺序为：BOND, CASH, COMMODITY, EQUITY）
+Sigma_old = [
+  [0.000422, 0.000003, -0.000024, -0.000985],
+  [0.000003, 0.000010, -0.000085,  0.000091],
+  [-0.000024,-0.000085, 0.009452, -0.000274],
+  [-0.000985, 0.000091,-0.000274,  0.068279]
+]
+你必须将 Sigma_old 重排成 Sigma_new，顺序变为 CASH,BOND,EQUITY,COMMODITY
+提示：旧索引 [BOND,CASH,COMMODITY,EQUITY] -> 新索引 [CASH,BOND,EQUITY,COMMODITY]
+即 perm = [1,0,3,2]，Sigma_new = Sigma_old[np.ix_(perm,perm)]
+
+### 0.4 无风险利率 rf
+rf = 0.014
+
+## 1) 105 套索引（5 风险 × 7 阶段 × 3 需求）
+risk_levels = ["C1","C2","C3","C4","C5"]
+life_stages = ["刚毕业","单身青年","二人世界","小孩学前","小孩成年前","子女成年","退休"]
+needs = ["保值","增值","传承"]  # 注意：这里的顺序可任意，但映射必须正确
+
+## 2) 风险等级 -> lambda（取中值）
+lambda_map = {"C1":8.5,"C2":5.5,"C3":3.5,"C4":2.5,"C5":1.5}
+
+## 3) 需求 -> return_floor（整数目标）
+IMPORTANT：return_floor 直接用整数百分比目标（不是 rf + Δ）
+need_return_floor = {
+  "保值": 0.03,
+  "增值": 0.05,
+  "传承": 0.07
+}
+
+## 4) 人生阶段基础约束（连续值，后面再转整数上下限）
+stage_base = {
+ "刚毕业":  {"cash_min":0.03,"bond_min":0.10,"risk_cap":0.85,"com_cap":0.20},
+ "单身青年":{"cash_min":0.03,"bond_min":0.15,"risk_cap":0.80,"com_cap":0.20},
+ "二人世界":{"cash_min":0.05,"bond_min":0.20,"risk_cap":0.75,"com_cap":0.18},
+ "小孩学前":{"cash_min":0.08,"bond_min":0.25,"risk_cap":0.65,"com_cap":0.15},
+ "小孩成年前":{"cash_min":0.10,"bond_min":0.35,"risk_cap":0.55,"com_cap":0.15},
+ "子女成年":{"cash_min":0.12,"bond_min":0.45,"risk_cap":0.45,"com_cap":0.20},
+ "退休":    {"cash_min":0.15,"bond_min":0.55,"risk_cap":0.30,"com_cap":0.25}
+}
+
+## 5) 风险等级修正（连续值）
+cash_min_adj = {"C1":0.10,"C2":0.06,"C3":0.0,"C4":-0.02,"C5":-0.03}
+risk_cap_adj = {"C1":-0.25,"C2":-0.15,"C3":0.0,"C4":0.10,"C5":0.20}
+com_cap_adj  = {"C1":-0.05,"C2":-0.03,"C3":0.0,"C4":0.03,"C5":0.05}
+
+## 6) 需求修正（连续值）
+# COMMODITY 上限需求修正（黄金主导另类）
+com_need_adj = {"保值":0.03,"增值":-0.02,"传承":0.01}
+
+# “增值”对风险资产总上限额外 +5%（可选项：此处启用）
+risk_need_adj = {"保值":0.0,"增值":0.05,"传承":0.0}
+
+# 增值需求的股票下限（连续，后面转整数）
+equity_min_stage_for_growth = {
+ "刚毕业":0.35,"单身青年":0.35,"二人世界":0.35,
+ "小孩学前":0.30,"小孩成年前":0.25,"子女成年":0.20,"退休":0.10
+}
+
+## 7) 生成“连续约束”（用于连续 MVO 求解）
+对每个组合 (risk, stage, need)：
+1) cash_min = clamp(stage_cash_min + cash_min_adj[risk], 0, 1)
+2) bond_min = stage_bond_min
+3) risk_assets_cap = clamp(stage_risk_cap + risk_cap_adj[risk] + risk_need_adj[need], 0, 1)
+4) commodity_cap = clamp(stage_com_cap + com_cap_adj[risk] + com_need_adj[need], 0.05, 0.35)
+   并且 commodity_cap = min(commodity_cap, risk_assets_cap)
+5) equity_min：
+   - if need == "增值": equity_min = equity_min_stage_for_growth[stage]
+   - else: equity_min = 0.10  （为了补齐“每类都有下限”的制度要求）
+6) commodity_min = 0.05（黄金主导另类最低仓位，制度性分散）
+7) 可行性兜底：若 cash_min + bond_min + equity_min + commodity_min > 1：
+   优先下调 equity_min（最低到 0），再下调 bond_min（最低到 0），确保可行域存在。
+
+注意：连续求解时请用 bounds + inequality constraints 同时确保：
+- sum(w)=1
+- w_i >= 0
+- w_cash >= cash_min, w_bond >= bond_min, w_equity >= equity_min, w_commodity >= commodity_min
+- w_commodity <= commodity_cap
+- w_equity + w_commodity <= risk_assets_cap
+
+## 8) 连续 MVO 目标函数（效用函数 + 收益下限软约束）
+对每套组合：
+U(w) = w^T mu - 0.5 * lambda * w^T Sigma_new w
+
+并加入收益下限的软约束惩罚（必须做软约束，避免无解）：
+short = max(0, return_floor - w^T mu)
+objective = -( U(w) - penalty * short^2 )
+
+建议 penalty = 200（可作为参数）
+
+用 scipy.optimize.minimize(method="SLSQP") 求解，得到 w_cont（连续最优 SAA）。
+
+## 9) 将“连续约束”转成 8 个整数上下限（百分比）
+对每套组合，产出以下整数区间（单位：%）：
+
+### 9.1 先算整数风险资产总上限
+RISK_ASSETS_MAX = floor(risk_assets_cap * 100)
+
+### 9.2 COMMODITY 区间（黄金主导另类）
+COMMODITY_min_pct = 5
+COMMODITY_max_pct = floor(commodity_cap * 100)
+
+### 9.3 EQUITY 区间
+EQUITY_min_pct = ceil(equity_min * 100)
+EQUITY_max_pct = RISK_ASSETS_MAX - COMMODITY_min_pct
+（若 EQUITY_max_pct < EQUITY_min_pct，则下调 EQUITY_min_pct 到 EQUITY_max_pct，必要时再放松 commodity_min_pct 但最低不得低于 0）
+
+### 9.4 CASH / BOND 区间
+CASH_min_pct = ceil(cash_min * 100)
+BOND_min_pct = ceil(bond_min * 100)
+
+为了补齐 CASH_max/BOND_max，使用“制度性残差上限”：
+CASH_max_pct = 100 - BOND_min_pct - EQUITY_min_pct - COMMODITY_min_pct
+BOND_max_pct = 100 - CASH_min_pct - EQUITY_min_pct - COMMODITY_min_pct
+
+并做一致性修正：
+- CASH_max_pct = max(CASH_max_pct, CASH_min_pct)
+- BOND_max_pct = max(BOND_max_pct, BOND_min_pct)
+- 同时确保四个 max 不导致无解（如有冲突，优先放松 CASH_max_pct/BOND_max_pct 的计算方式，保持 min 不变）
+
+最终得到 8 个整数：
+CASH_min_pct,CASH_max_pct,
+BOND_min_pct,BOND_max_pct,
+EQUITY_min_pct,EQUITY_max_pct,
+COMMODITY_min_pct,COMMODITY_max_pct
+
+## 10) 把连续权重 w_cont 投影到“整数可行域”（得到整数权重）
+目标：找一组整数权重 w_int_pct（四类，整数，和=100），满足：
+- 每类在对应 min/max 区间内
+- EQUITY+COMMODITY <= RISK_ASSETS_MAX
+- 尽可能接近 w_cont * 100（最小化 L2 或 L1 距离）
+
+实现建议（可选其一，推荐 A）：
+A) 先用 Largest Remainder 得到整数初值，再做“约束修复循环”（greedy 调整）
+B) 直接做一个小型整数规划（ILP），但不要引入新库（尽量用 greedy）
+
+必须保证最终 w_int_pct 可行；若不可行，记录 reason 并执行回退策略：
+回退策略优先级：
+1) 降低 EQUITY_min_pct（但不低于 0 或制度下限）
+2) 降低 COMMODITY_min_pct（最低到 0，仅在极端冲突时）
+3) 放宽 CASH_max_pct/BOND_max_pct 的计算（允许更大上限）
+
+## 11) 计算并输出指标（基于最终整数权重 w_int_pct）
+将 w_int_pct/100 得到 w_final（float）：
+- exp_return = w_final^T mu
+- ann_vol = sqrt(w_final^T Sigma_new w_final)
+- sharpe_excess_rf = (exp_return - rf) / ann_vol
+
+## 12) 输出文件
+输出 CSV：mvo_105_weights_saa_int_bounds_plus.csv
+字段必须包含（顺序固定）：
+
+risk_level,life_stage,need,
+cash_min_pct,cash_max_pct,
+bond_min_pct,bond_max_pct,
+equity_min_pct,equity_max_pct,
+commodity_min_pct,commodity_max_pct,
+w_cash_pct,w_bond_pct,w_equity_pct,w_commodity_pct,
+lambda,return_floor,exp_return,ann_vol,sharpe_excess_rf
+
+并额外输出一列：
+feasible (True/False) + infeasible_reason（如发生回退/放松，写明原因）
+
+## 13) 质量校验（必须做）
+对每行：
+- 四权重都是整数且 sum=100
+- 每类权重落在 min/max 内
+- EQUITY+COMMODITY <= RISK_ASSETS_MAX
+- feasible 必须为 True；若出现 False，给出原因并打印该行的全部参数用于调试
+
+完成后在控制台打印：
+- feasible 的占比
+- 任意 infeasible 行的示例（最多 10 行）
+- 输出文件路径
