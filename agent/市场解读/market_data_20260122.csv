@@ -1,6 +1,8 @@
 asset_class,market,sector,ticker,ref_date,value,unit,data_type
 Equity,US,Broad_Market_Index,SPX,2026-01-02,6858.47,Index_Level,Equity
 Equity,US,Broad_Market_Index,IXIC,2026-01-02,23235.63,Index_Level,Equity
+Equity,US,Broad_Market_Index,SPX,2026-01-22,6915.61,Index_Level,Equity
+Equity,US,Broad_Market_Index,IXIC,2026-01-22,23501.24,Index_Level,Equity
 Equity,Japan,Broad_Market_Index,NI225,2026-01-05,51832.8,Index_Level,Equity
 Equity,Japan,Broad_Market_Index,NI225,2026-01-22,53688.89,Index_Level,Equity
 Equity,HongKong,Broad_Market_Index,HSI,2026-01-02,26338.47,Index_Level,Equity
